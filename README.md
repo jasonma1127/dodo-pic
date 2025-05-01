@@ -1,1 +1,5 @@
 # DodoPic
+
+```
+npm run dev
+```
