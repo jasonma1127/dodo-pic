@@ -10,27 +10,10 @@ import { useWorkflowStore } from '@/store';
 // Feature components
 import LayoutSelector from '@/features/layout/components/LayoutSelector';
 import CameraView from '@/features/camera/components/CameraView';
+import EditorView from '@/features/editor/components/EditorView';
+import ExportPreview from '@/features/export/components/ExportPreview';
 import WorkflowStepper from '@/features/workflow/components/WorkflowStepper';
 import NavigationBar from '@/features/workflow/components/NavigationBar';
-
-// Placeholder components for upcoming features
-const EditorView = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-    <div className="text-center">
-      <h2 className="text-3xl font-bold text-gray-900 mb-4">Editor</h2>
-      <p className="text-gray-600">Coming soon: Filters, Stickers, and Frames</p>
-    </div>
-  </div>
-);
-
-const ExportView = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-    <div className="text-center">
-      <h2 className="text-3xl font-bold text-gray-900 mb-4">Export</h2>
-      <p className="text-gray-600">Coming soon: Download and Share</p>
-    </div>
-  </div>
-);
 
 function App() {
   const { currentStep, setCanGoPrev } = useWorkflowStore();
@@ -52,7 +35,7 @@ function App() {
           {currentStep === 'layout' && <LayoutSelector key="layout" />}
           {currentStep === 'camera' && <CameraView key="camera" />}
           {currentStep === 'editor' && <EditorView key="editor" />}
-          {currentStep === 'export' && <ExportView key="export" />}
+          {currentStep === 'export' && <ExportPreview key="export" />}
         </AnimatePresence>
       </div>
 

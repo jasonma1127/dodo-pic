@@ -82,20 +82,20 @@ export const COPY = {
       stickers: "Stickers",
       frames: "Frames",
     },
-    filterPanel: {
+    filters: {
       title: "Choose a Filter",
       noFilter: "Original",
       apply: "Apply",
       applied: "Applied",
     },
-    stickerPanel: {
+    stickers: {
       title: "Add Stickers",
-      hint: "Tap to add, drag to move, pinch to resize",
-      deleteHint: "Tap outside to deselect",
+      hint: "Click to add, drag to move, use controls to adjust",
+      deleteHint: "Click outside to deselect",
       noStickers: "No stickers added yet",
-      addSticker: "Tap a sticker to add it",
+      addSticker: "Click a sticker to add it",
     },
-    framePanel: {
+    frames: {
       title: "Select a Frame",
       noFrame: "No Frame",
       preview: "Preview",
@@ -118,6 +118,20 @@ export const COPY = {
   export: {
     title: "Your DodoPic is Ready!",
     subtitle: "Download or share your creation",
+    composing: "Creating your masterpiece...",
+    download: "Download",
+    share: "Share",
+    copy: "Copy to Clipboard",
+    copied: "Copied!",
+    restart: "Start Over",
+    fileSize: "File Size",
+    error: "Failed to create image",
+    restartConfirm: {
+      title: "Start Over?",
+      message: "This will clear all your photos and edits. Are you sure?",
+      confirm: "Yes, Start Over",
+      cancel: "Cancel",
+    },
     preview: {
       title: "Preview",
       loading: "Creating your masterpiece...",
@@ -138,12 +152,6 @@ export const COPY = {
       shareCopied: "Image copied to clipboard!",
       shareFallback: "Share not available. Image downloaded instead.",
       shareError: "Share failed. Please try again.",
-    },
-    confirmRestart: {
-      title: "Start Over?",
-      message: "This will clear all your photos and edits. Are you sure?",
-      confirm: "Yes, Start Over",
-      cancel: "Cancel",
     },
     fileInfo: {
       format: "PNG",
