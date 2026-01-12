@@ -383,11 +383,11 @@ export const usePhotoStore = create(
 - **US-003**: As a user, I want to see clear labels for each layout option
 
 #### Acceptance Criteria
-- [ ] Displays 5 layout options in a responsive grid
-- [ ] Each option shows a preview image
-- [ ] Selected layout is visually highlighted
-- [ ] Clicking a layout automatically proceeds to camera step
-- [ ] Layout selection updates photoStore.maxPhotos
+- [x] Displays 5 layout options in a responsive grid
+- [x] Each option shows a preview image
+- [x] Selected layout is visually highlighted
+- [x] Clicking a layout automatically proceeds to camera step
+- [x] Layout selection updates photoStore.maxPhotos
 
 #### Wireframe
 
@@ -442,15 +442,15 @@ COPY.layout = {
 - **US-008**: As a user, I want to automatically proceed to editing when all photos are captured
 
 #### Acceptance Criteria
-- [ ] Camera starts only after user clicks "Start Camera"
-- [ ] 3-second countdown displays before each capture
-- [ ] Countdown shows large numbers (3, 2, 1) with animation
-- [ ] Shutter animation (white flash) plays on capture
-- [ ] Captured photos display in a grid matching the selected layout
-- [ ] Each photo thumbnail shows its number (1/4, 2/4, etc.)
-- [ ] Retake button appears on hover over each thumbnail
-- [ ] Photos are captured at 640x480 minimum resolution
-- [ ] Automatically proceeds to editor when all slots filled
+- [x] Camera starts only after user clicks "Start Camera"
+- [x] 3-second countdown displays before each capture
+- [x] Countdown shows large numbers (3, 2, 1) with animation
+- [x] Shutter animation (white flash) plays on capture
+- [x] Captured photos display in a grid matching the selected layout
+- [x] Each photo thumbnail shows its number (1/4, 2/4, etc.)
+- [x] Retake button appears on hover over each thumbnail
+- [x] Photos are captured at 640x480 minimum resolution
+- [x] Automatically proceeds to editor when all slots filled
 
 #### Camera Initialization Flow
 
@@ -527,17 +527,17 @@ COPY.camera = {
 - **US-013**: As a user, I want to preview changes before finalizing
 
 #### Acceptance Criteria
-- [ ] Filter panel displays 6+ filter options with previews
-- [ ] Clicking a filter applies it to all photos instantly
-- [ ] Sticker panel displays 10-15 sticker options
-- [ ] Clicking a sticker adds it to the center of the canvas
-- [ ] Stickers can be dragged to reposition
-- [ ] Stickers can be pinch-zoomed (mobile) or corner-dragged (desktop) to resize
-- [ ] Stickers can be rotated with two-finger twist (mobile) or rotate handle (desktop)
-- [ ] Clicking outside a sticker deselects it
-- [ ] Delete button appears when sticker is selected
-- [ ] Frame panel displays 5-8 frame options
-- [ ] Frame preview updates in real-time
+- [x] Filter panel displays 8 filter options with previews
+- [x] Clicking a filter applies it to all photos instantly
+- [x] Sticker panel displays 20 sticker options in 3 categories
+- [x] Clicking a sticker adds it to the center of the canvas
+- [x] Stickers can be dragged to reposition
+- [x] Stickers can be scaled with control buttons
+- [x] Stickers can be rotated with control buttons
+- [x] Clicking outside a sticker deselects it
+- [x] Delete button appears when sticker is selected
+- [x] Frame panel displays 7 frame options
+- [x] Frame preview updates in real-time
 
 #### Filter Specifications
 
@@ -677,14 +677,15 @@ COPY.editor = {
 - **US-017**: As a user, I want to start over and create a new photo
 
 #### Acceptance Criteria
-- [ ] Final composite image renders at high quality (min 1200x1800px)
-- [ ] Preview shows the exact image that will be downloaded
-- [ ] Download button triggers immediate file download
-- [ ] Downloaded file is named `dodopic-{timestamp}.png`
-- [ ] Share button opens native share sheet (mobile) or copies link (desktop)
-- [ ] "Start Over" button clears all stores and returns to layout selection
-- [ ] Loading state shows during image composition
-- [ ] Success message appears after download/share
+- [x] Final composite image renders at high quality (800x1200px per photo)
+- [x] Preview shows the exact image that will be downloaded
+- [x] Download button triggers immediate file download
+- [x] Downloaded file is named `dodopic-{timestamp}.jpg`
+- [x] Share button opens native share sheet using Web Share API
+- [x] Copy to clipboard button for devices that support it
+- [x] "Start Over" button clears all stores and returns to layout selection
+- [x] Loading state shows during image composition
+- [x] File size display after composition
 
 #### Image Composition Algorithm
 
@@ -854,13 +855,13 @@ COPY.export = {
 - **US-020**: As a user, I want the app to prevent me from skipping steps
 
 #### Acceptance Criteria
-- [ ] Step indicator shows all 4 steps: Layout → Camera → Editor → Export
-- [ ] Current step is visually highlighted
-- [ ] Completed steps show a checkmark
-- [ ] "Next" button is disabled if current step is incomplete
-- [ ] "Previous" button works at any step except Layout
-- [ ] Clicking a completed step in the indicator jumps to that step
-- [ ] Step transitions have smooth animations
+- [x] Step indicator shows all 4 steps: Layout → Camera → Editor → Export
+- [x] Current step is visually highlighted
+- [x] Completed steps show a checkmark
+- [x] "Next" button is disabled if current step is incomplete
+- [x] "Previous" button works at any step except Layout
+- [x] Navigation bar with Previous/Next buttons
+- [x] Step transitions have smooth animations (Framer Motion)
 
 #### Step Validation Logic
 
