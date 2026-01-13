@@ -36,14 +36,14 @@ const CameraView = () => {
 
   return (
     <motion.div
-      className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100"
+      className="h-full flex flex-col bg-gradient-to-br from-slate-50 to-slate-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       {/* Header */}
-      <div className="p-6 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+      <div className="p-4 text-center flex-shrink-0">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           {retakeIndex !== null
             ? `${COPY.camera.retaking} ${retakeIndex + 1}`
             : COPY.camera.title}
@@ -60,7 +60,7 @@ const CameraView = () => {
         )}
       </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 p-6">
+      <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 min-h-0">
         {/* Camera Section */}
         <div className="flex-1 flex flex-col items-center justify-center">
           <div className="w-full max-w-2xl">

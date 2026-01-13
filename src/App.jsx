@@ -25,12 +25,12 @@ function App() {
   }, [setCanGoPrev]);
 
   return (
-    <div className="min-h-screen bg-ios-gray-50">
+    <div className="h-screen flex flex-col bg-ios-gray-50 overflow-hidden">
       {/* Workflow Step Indicator */}
       <WorkflowStepper />
 
       {/* Main Content - Animated page transitions */}
-      <div className="pb-24">
+      <div className="flex-1 overflow-y-auto">
         <AnimatePresence mode="wait">
           {currentStep === 'layout' && <LayoutSelector key="layout" />}
           {currentStep === 'camera' && <CameraView key="camera" />}

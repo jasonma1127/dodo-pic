@@ -38,6 +38,12 @@ const ExportPreview = () => {
   // Compose image on mount
   useEffect(() => {
     const compose = async () => {
+      // Check if we have the required data
+      if (!selectedLayout || !photos || photos.length === 0) {
+        setIsComposing(false);
+        return;
+      }
+
       try {
         setIsComposing(true);
 
@@ -109,13 +115,28 @@ const ExportPreview = () => {
     return <FullScreenLoading text={COPY.export.composing} />;
   }
 
+  // Show error if no photos or layout
+  if (!selectedLayout || !photos || photos.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">No Photos to Export</h2>
+          <p className="text-gray-600 mb-6">Please go back and capture some photos first.</p>
+          <Button onClick={() => resetWorkflow()}>
+            Start Over
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className="container mx-auto px-4 py-8"
+      className="h-full flex flex-col container mx-auto px-4 py-4"
     >
       {/* Header */}
       <div className="text-center mb-8">

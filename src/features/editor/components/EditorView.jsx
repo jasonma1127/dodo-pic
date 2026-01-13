@@ -29,27 +29,27 @@ const EditorView = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className="container mx-auto px-4 py-8"
+      className="h-full flex flex-col container mx-auto px-4 py-4"
     >
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">
+      <div className="text-center mb-4 flex-shrink-0">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
           {COPY.editor.title}
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-sm text-gray-600">
           {COPY.editor.subtitle}
         </p>
       </div>
 
       {/* Editor Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start min-h-0">
         {/* Canvas Area */}
-        <div className="order-2 lg:order-1">
+        <div className="order-2 lg:order-1 h-full overflow-auto">
           <EditorCanvas />
         </div>
 
         {/* Toolbar Area */}
-        <div className="order-1 lg:order-2">
+        <div className="order-1 lg:order-2 h-full overflow-auto">
           <EditorToolbar />
         </div>
       </div>

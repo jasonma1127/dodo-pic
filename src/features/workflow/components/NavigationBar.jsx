@@ -80,23 +80,23 @@ const NavigationBar = () => {
       <Modal
         isOpen={showRestartModal}
         onClose={() => setShowRestartModal(false)}
-        title={COPY.export.confirmRestart.title}
+        title={COPY.export.restartConfirm.title}
       >
         <Modal.Body>
-          <p className="text-gray-700">{COPY.export.confirmRestart.message}</p>
+          <p className="text-gray-700">{COPY.export.restartConfirm.message}</p>
         </Modal.Body>
         <Modal.Footer>
           <Button
             variant="secondary"
             onClick={() => setShowRestartModal(false)}
           >
-            {COPY.export.confirmRestart.cancel}
+            {COPY.export.restartConfirm.cancel}
           </Button>
           <Button
             variant="danger"
             onClick={handleRestart}
           >
-            {COPY.export.confirmRestart.confirm}
+            {COPY.export.restartConfirm.confirm}
           </Button>
         </Modal.Footer>
       </Modal>
