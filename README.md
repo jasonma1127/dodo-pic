@@ -13,7 +13,7 @@ Create instant photo collages with filters, stickers, and frames—all in your b
 
 ## ✨ Features
 
-- **5+ Photo Layouts**: Classic 2x2, horizontal/vertical strips, 3x3 grid, and more
+- **3 Photo Layouts**: Classic 2x2, vertical strip, and 3x3 grid
 - **Webcam Capture**: Take multiple photos with countdown timer
 - **Retake Functionality**: Replace individual photos without starting over
 - **Creative Filters**: Black & White, Vintage, Vivid, Cool/Warm tones
@@ -63,7 +63,7 @@ DodoPic follows a simple 4-step workflow:
 ```
 
 ### Step 1: Choose Your Layout
-Select from 5 photo layouts (2x2, 4x1, 1x4, 3x3, 2x3). Each layout determines how many photos you'll capture.
+Select from 3 photo layouts (2x2, 1x4, 3x3). Each layout determines how many photos you'll capture.
 
 ### Step 2: Capture Photos
 - Click "Start Camera" to enable your webcam
@@ -244,7 +244,7 @@ docs: Update API specifications in SPEC.md
 ## 📝 Roadmap
 
 ### Current Version: 2.0.0
-- ✅ 5+ photo layouts
+- ✅ 3 photo layouts
 - ✅ Webcam capture with countdown
 - ✅ Retake individual photos
 - ✅ 6 filter presets

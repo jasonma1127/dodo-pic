@@ -28,7 +28,7 @@
 - [x] Loading component (3 variants: spinner, dots, pulse)
 
 ### Feature 1: Layout Selection (100%)
-- [x] Layout constants (5 layouts: 2x2, 4x1, 1x4, 3x3, 2x3)
+- [x] Layout constants (3 layouts: 2x2, 1x4, 3x3)
 - [x] LayoutPreview component
 - [x] LayoutSelector component
 - [x] Auto-advance to camera after selection
@@ -327,7 +327,7 @@ All code follows these standards:
    ```
 
 2. **Test complete workflow**
-   - Select a layout (2x2, 4x1, etc.)
+   - Select a layout (2x2, 1x4, or 3x3)
    - Capture photos with camera
    - Apply filters, add stickers, select frames
    - Download or share final image
