@@ -23,18 +23,20 @@ const PhotoGrid = ({ onRetake }) => {
   }));
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex items-center justify-center">
       <div
-        className="grid gap-2 w-full"
+        className="grid gap-2 w-full max-h-full"
         style={{
-          gridTemplateRows: `repeat(${selectedLayout.rows}, 1fr)`,
-          gridTemplateColumns: `repeat(${selectedLayout.cols}, 1fr)`,
+          gridTemplateRows: `repeat(${selectedLayout.rows}, minmax(0, 1fr))`,
+          gridTemplateColumns: `repeat(${selectedLayout.cols}, minmax(0, 1fr))`,
+          aspectRatio: `${selectedLayout.cols}/${selectedLayout.rows}`,
         }}
       >
         {slots.map(({ index, photo }) => (
           <motion.div
             key={index}
-            className="relative aspect-[3/4] bg-ios-gray-100 rounded-lg overflow-hidden group"
+            className="relative bg-ios-gray-100 rounded-lg overflow-hidden group"
+            style={{ aspectRatio: '3/4' }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
