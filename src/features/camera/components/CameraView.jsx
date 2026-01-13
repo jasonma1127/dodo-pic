@@ -60,10 +60,10 @@ const CameraView = () => {
         )}
       </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 min-h-0">
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 p-4 min-h-0">
         {/* Camera Section */}
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="w-full max-w-2xl">
+        <div className="flex flex-col items-center justify-center lg:w-1/2">
+          <div className="w-full max-w-md">
             {/* Camera Preview */}
             <div className="relative bg-black rounded-2xl overflow-hidden shadow-macos-lg aspect-[3/4]">
               {isCameraOn ? (
@@ -105,7 +105,7 @@ const CameraView = () => {
             </div>
 
             {/* Camera Controls */}
-            <div className="mt-6 flex flex-col items-center gap-4">
+            <div className="mt-4 flex flex-col items-center gap-3">
               {!isCameraOn ? (
                 <Button
                   variant="primary"
@@ -155,7 +155,7 @@ const CameraView = () => {
         </div>
 
         {/* Photo Grid Section */}
-        <div className="flex-1">
+        <div className="flex flex-col lg:w-1/2 min-h-0">
           <PhotoGrid onRetake={initiateRetake} />
         </div>
       </div>

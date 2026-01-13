@@ -23,9 +23,9 @@ const PhotoGrid = ({ onRetake }) => {
   }));
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6">
+    <div className="w-full h-full flex flex-col">
       <div
-        className="grid gap-3 w-full"
+        className="grid gap-2 w-full"
         style={{
           gridTemplateRows: `repeat(${selectedLayout.rows}, 1fr)`,
           gridTemplateColumns: `repeat(${selectedLayout.cols}, 1fr)`,
