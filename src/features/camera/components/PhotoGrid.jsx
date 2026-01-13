@@ -22,21 +22,23 @@ const PhotoGrid = ({ onRetake }) => {
     photo: photos[index] || null,
   }));
 
+  // Calculate grid aspect ratio based on layout and cell aspect ratio (3:4)
+  const gridAspectRatio = `${selectedLayout.cols * 3} / ${selectedLayout.rows * 4}`;
+
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div
-        className="grid gap-2 w-full max-h-full"
+        className="grid gap-2 h-full"
         style={{
-          gridTemplateRows: `repeat(${selectedLayout.rows}, minmax(0, 1fr))`,
-          gridTemplateColumns: `repeat(${selectedLayout.cols}, minmax(0, 1fr))`,
-          aspectRatio: `${selectedLayout.cols}/${selectedLayout.rows}`,
+          gridTemplateRows: `repeat(${selectedLayout.rows}, 1fr)`,
+          gridTemplateColumns: `repeat(${selectedLayout.cols}, 1fr)`,
+          aspectRatio: gridAspectRatio,
         }}
       >
         {slots.map(({ index, photo }) => (
           <motion.div
             key={index}
             className="relative bg-ios-gray-100 rounded-lg overflow-hidden group"
-            style={{ aspectRatio: '3/4' }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
