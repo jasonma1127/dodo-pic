@@ -12,7 +12,7 @@ import { devtools } from 'zustand/middleware';
 
 /**
  * @typedef {Object} Layout
- * @property {string} id - Layout identifier ('2x2', '4x1', etc.)
+ * @property {string} id - Layout identifier ('2x2', '1x4', '3x3')
  * @property {string} name - Display name
  * @property {number} rows - Number of rows in grid
  * @property {number} cols - Number of columns in grid

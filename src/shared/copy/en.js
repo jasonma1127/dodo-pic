@@ -26,17 +26,13 @@ export const COPY = {
     subtitle: "Select a photo layout to get started",
     layouts: {
       '2x2': "Classic 2x2",
-      '4x1': "Horizontal Strip",
       '1x4': "Vertical Strip",
       '3x3': "Grid 3x3",
-      '2x3': "Six Shots",
     },
     description: {
       '2x2': "Classic photo booth style with 4 photos",
-      '4x1': "Perfect for group shots in a row",
       '1x4': "Vertical strip layout",
       '3x3': "Nine photos in a grid",
-      '2x3': "Six photos for more variety",
     },
   },
 

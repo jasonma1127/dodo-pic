@@ -14,15 +14,6 @@ export const LAYOUTS = [
     description: 'Classic photo booth style with 4 photos',
   },
   {
-    id: '4x1',
-    name: 'Horizontal Strip',
-    rows: 1,
-    cols: 4,
-    total: 4,
-    previewImage: '/assets/layout-previews/4x1.jpg',
-    description: 'Perfect for group shots in a row',
-  },
-  {
     id: '1x4',
     name: 'Vertical Strip',
     rows: 4,
@@ -39,15 +30,6 @@ export const LAYOUTS = [
     total: 9,
     previewImage: '/assets/layout-previews/3x3.jpg',
     description: 'Nine photos in a grid',
-  },
-  {
-    id: '2x3',
-    name: 'Six Shots',
-    rows: 2,
-    cols: 3,
-    total: 6,
-    previewImage: '/assets/layout-previews/2x3.jpg',
-    description: 'Six photos for more variety',
   },
 ];
 
