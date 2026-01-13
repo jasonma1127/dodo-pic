@@ -31,7 +31,7 @@ DodoPic is a modern, web-based photo booth application that brings the joy of in
 - **Tertiary**: Content creators seeking quick photo collage tools
 
 ### 1.3 Key Features
-- **5+ Layout Options**: Classic 2x2, horizontal/vertical strips, 3x3 grid, and more
+- **3 Layout Options**: Classic 2x2, vertical strip, and 3x3 grid
 - **Complete Workflow**: Layout selection → Photo capture → Editing → Export/Share
 - **Photo Editing**:
   - 6+ filter presets (B&W, Vintage, Vivid, Cool/Warm tones)
@@ -273,8 +273,8 @@ const CameraView = () => {
  * Layout Type Definition
  */
 type Layout = {
-  id: string,           // '2x2', '4x1', '1x4', '3x3', '2x3'
-  name: string,         // 'Classic 2x2', 'Horizontal Strip', etc.
+  id: string,           // '2x2', '1x4', '3x3'
+  name: string,         // 'Classic 2x2', 'Vertical Strip', 'Grid 3x3'
   rows: number,         // Grid rows
   cols: number,         // Grid columns
   total: number,        // rows × cols
@@ -383,7 +383,7 @@ export const usePhotoStore = create(
 - **US-003**: As a user, I want to see clear labels for each layout option
 
 #### Acceptance Criteria
-- [x] Displays 5 layout options in a responsive grid
+- [x] Displays 3 layout options in a responsive grid
 - [x] Each option shows a preview image
 - [x] Selected layout is visually highlighted
 - [x] Clicking a layout automatically proceeds to camera step
@@ -397,20 +397,14 @@ export const usePhotoStore = create(
 │     Select a photo layout to begin     │
 │                                         │
 │  ┌─────┐  ┌─────┐  ┌─────┐           │
-│  │ 2x2 │  │ 4x1 │  │ 1x4 │           │
-│  │ ■ ■ │  │■■■■ │  │ ■   │           │
-│  │ ■ ■ │  │     │  │ ■   │           │
-│  └─────┘  └─────┘  │ ■   │           │
-│  Classic  Horiz.   │ ■   │           │
-│   2x2     Strip    └─────┘           │
-│                    Vertical          │
-│  ┌─────┐  ┌─────┐  Strip             │
-│  │■■■  │  │■■    │                   │
-│  │■■■  │  │■■    │                   │
-│  │■■■  │  │■■    │                   │
-│  └─────┘  └─────┘                    │
-│  Grid 3x3  Six                       │
-│            Shots                      │
+│  │ 2x2 │  │ 1x4 │  │ 3x3 │           │
+│  │ ■ ■ │  │ ■   │  │■■■  │           │
+│  │ ■ ■ │  │ ■   │  │■■■  │           │
+│  └─────┘  │ ■   │  │■■■  │           │
+│  Classic  │ ■   │  └─────┘           │
+│   2x2     └─────┘  Grid 3x3          │
+│           Vertical                    │
+│            Strip                      │
 └────────────────────────────────────────┘
 ```
 
@@ -422,10 +416,8 @@ COPY.layout = {
   subtitle: "Select a photo layout to get started",
   layouts: {
     '2x2': "Classic 2x2",
-    '4x1': "Horizontal Strip",
     '1x4': "Vertical Strip",
     '3x3': "Grid 3x3",
-    '2x3': "Six Shots",
   }
 }
 ```
@@ -1509,10 +1501,8 @@ export const COPY = {
     subtitle: "Select a photo layout to get started",
     layouts: {
       '2x2': "Classic 2x2",
-      '4x1': "Horizontal Strip",
       '1x4': "Vertical Strip",
       '3x3': "Grid 3x3",
-      '2x3': "Six Shots",
     },
   },
 
@@ -1667,10 +1657,8 @@ dodopic/
 │   │   │   └── ... (5-8 frames)
 │   │   └── layout-previews/
 │   │       ├── 2x2.jpg
-│   │       ├── 4x1.jpg
 │   │       ├── 1x4.jpg
-│   │       ├── 3x3.jpg
-│   │       └── 2x3.jpg
+│   │       └── 3x3.jpg
 │   ├── favicon.ico
 │   └── index.html
 │
