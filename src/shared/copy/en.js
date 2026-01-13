@@ -22,6 +22,7 @@ export const COPY = {
 
   // Layout Selection (Step 1)
   layout: {
+    welcome: "Welcome to DodoPic",
     title: "Choose Your Layout",
     subtitle: "Select a photo layout to get started",
     layouts: {
@@ -30,7 +31,7 @@ export const COPY = {
       '3x3': "Grid 3x3",
     },
     description: {
-      '2x2': "Classic photo booth style with 4 photos",
+      '2x2': "Classic photo booth style",
       '1x4': "Vertical strip layout",
       '3x3': "Nine photos in a grid",
     },
@@ -47,7 +48,7 @@ export const COPY = {
     retaking: "Retaking Photo",
     countdown: {
       ready: "Get Ready!",
-      smile: "Smile! 📸",
+      smile: "Smile!",
     },
     photoCounter: (current, total) => `${current}/${total}`,
     progress: {
