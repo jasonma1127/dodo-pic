@@ -15,20 +15,12 @@ import { devtools } from 'zustand/middleware';
 /**
  * @typedef {Object} Sticker
  * @property {string} id - Unique identifier
- * @property {string} src - Image source path
- * @property {number} x - X position in pixels
- * @property {number} y - Y position in pixels
+ * @property {string} src - Image source path or emoji
+ * @property {number} x - X position in percentage (0-100)
+ * @property {number} y - Y position in percentage (0-100)
  * @property {number} scale - Scale factor (0.5 - 2.0)
  * @property {number} rotation - Rotation in degrees (0 - 360)
  * @property {number} zIndex - Layer order
- */
-
-/**
- * @typedef {Object} Frame
- * @property {string} id - Frame identifier
- * @property {string} name - Display name
- * @property {string} src - Frame image source
- * @property {'overlay' | 'border'} type - Frame type
  */
 
 export const useEditorStore = create(
@@ -39,7 +31,7 @@ export const useEditorStore = create(
        */
       currentFilter: 'none',   // string - Currently selected filter ID
       appliedStickers: [],     // Array<Sticker> - Stickers on canvas
-      selectedFrame: null,     // Frame | null - Selected frame overlay
+      selectedFrame: 'none',   // string - Selected frame ID ('none' for no frame)
       selectedStickerId: null, // string | null - Currently selected sticker for editing
 
       /**
@@ -182,12 +174,12 @@ export const useEditorStore = create(
 
       /**
        * Set the frame overlay
-       * @param {Frame | null} frame - Frame to apply, or null to remove
+       * @param {string} frameId - Frame ID to apply ('none' to remove)
        */
-      setFrame: (frame) =>
+      setFrame: (frameId) =>
         set(
           {
-            selectedFrame: frame,
+            selectedFrame: frameId,
           },
           false,
           'editor/setFrame'
@@ -201,7 +193,7 @@ export const useEditorStore = create(
           {
             currentFilter: 'none',
             appliedStickers: [],
-            selectedFrame: null,
+            selectedFrame: 'none',
             selectedStickerId: null,
           },
           false,

@@ -27,84 +27,100 @@ export const compositeImage = async ({
 }) => {
   return new Promise((resolve, reject) => {
     try {
-      // Create canvas
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      // First, load the first photo to get actual dimensions
+      const firstImg = new Image();
+      firstImg.crossOrigin = 'anonymous';
 
-      // Set canvas size (high resolution for print quality)
-      const cellWidth = 800; // px per photo
-      const cellHeight = 1200; // px per photo (4:6 ratio)
-      const gap = 16; // gap between photos
-      const padding = 32; // padding around grid
+      firstImg.onload = () => {
+        // Use actual photo dimensions (no resize!)
+        const cellWidth = firstImg.width;
+        const cellHeight = firstImg.height;
+        const gap = 16; // gap between photos
+        const padding = 32; // padding around grid
 
-      canvas.width = layout.cols * cellWidth + (layout.cols - 1) * gap + padding * 2;
-      canvas.height = layout.rows * cellHeight + (layout.rows - 1) * gap + padding * 2;
+        console.log('Photo dimensions:', cellWidth, 'x', cellHeight);
 
-      // Fill background (white)
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
 
-      // Apply frame background if needed
-      const frameStyle = getFrameStyle(frameId);
-      if (frameStyle.border) {
-        // Parse border width from style
-        const borderWidth = parseInt(frameStyle.border) || 0;
-        ctx.fillStyle = frameStyle.border.includes('white') ? '#ffffff' : '#1a1a1a';
+        canvas.width = layout.cols * cellWidth + (layout.cols - 1) * gap + padding * 2;
+        canvas.height = layout.rows * cellHeight + (layout.rows - 1) * gap + padding * 2;
+
+        console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+
+        // Fill background (white)
+        ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
 
-      // Load and draw all photos
-      const photoPromises = photos.map((photoUrl, index) => {
-        return new Promise((resolvePhoto) => {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
+        // Apply frame background if needed
+        const frameStyle = getFrameStyle(frameId);
+        if (frameStyle.border) {
+          // Parse border width from style
+          const borderWidth = parseInt(frameStyle.border) || 0;
+          ctx.fillStyle = frameStyle.border.includes('white') ? '#ffffff' : '#1a1a1a';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
 
-          img.onload = () => {
-            const row = Math.floor(index / layout.cols);
-            const col = index % layout.cols;
-            const x = padding + col * (cellWidth + gap);
-            const y = padding + row * (cellHeight + gap);
+        // Load and draw all photos
+        const photoPromises = photos.map((photoUrl, index) => {
+          return new Promise((resolvePhoto) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
 
-            // Save context
-            ctx.save();
+            img.onload = () => {
+              const row = Math.floor(index / layout.cols);
+              const col = index % layout.cols;
+              const x = padding + col * (cellWidth + gap);
+              const y = padding + row * (cellHeight + gap);
 
-            // Apply filter
-            const filterCSS = getFilterCSS(filterId);
-            if (filterCSS !== 'none') {
-              ctx.filter = filterCSS;
-            }
+              // Save context
+              ctx.save();
 
-            // Draw photo
-            ctx.drawImage(img, x, y, cellWidth, cellHeight);
+              // Apply filter
+              const filterCSS = getFilterCSS(filterId);
+              if (filterCSS !== 'none') {
+                ctx.filter = filterCSS;
+              }
 
-            // Restore context
-            ctx.restore();
+              // Draw photo at its original size (no resize!)
+              ctx.drawImage(img, x, y, cellWidth, cellHeight);
 
-            resolvePhoto();
-          };
+              // Restore context
+              ctx.restore();
 
-          img.onerror = () => {
-            console.error('Failed to load photo:', index);
-            resolvePhoto(); // Continue even if one photo fails
-          };
+              resolvePhoto();
+            };
 
-          img.src = photoUrl;
+            img.onerror = () => {
+              console.error('Failed to load photo:', index);
+              resolvePhoto(); // Continue even if one photo fails
+            };
+
+            img.src = photoUrl;
+          });
         });
-      });
 
-      // Wait for all photos to load and draw
-      Promise.all(photoPromises).then(() => {
-        // Draw stickers
-        const stickerPromises = stickers.map((sticker) => {
-          return drawSticker(ctx, sticker, canvas.width, canvas.height);
-        });
+        // Wait for all photos to load and draw
+        Promise.all(photoPromises).then(() => {
+          // Draw stickers
+          const stickerPromises = stickers.map((sticker) => {
+            return drawSticker(ctx, sticker, canvas.width, canvas.height);
+          });
 
-        Promise.all(stickerPromises).then(() => {
-          // Convert to data URL
-          const dataUrl = canvas.toDataURL('image/jpeg', quality);
-          resolve(dataUrl);
+          Promise.all(stickerPromises).then(() => {
+            // Convert to data URL
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve(dataUrl);
+          });
         });
-      });
+      };
+
+      firstImg.onerror = () => {
+        reject(new Error('Failed to load first photo'));
+      };
+
+      firstImg.src = photos[0];
     } catch (error) {
       reject(error);
     }
