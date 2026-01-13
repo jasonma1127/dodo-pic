@@ -36,13 +36,13 @@ const CameraView = () => {
 
   return (
     <motion.div
-      className="h-full flex flex-col bg-gradient-to-br from-slate-50 to-slate-100"
+      className="h-full flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       {/* Header */}
-      <div className="p-4 text-center flex-shrink-0">
+      <div className="p-3 text-center flex-shrink-0">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           {retakeIndex !== null
             ? `${COPY.camera.retaking} ${retakeIndex + 1}`
@@ -60,12 +60,12 @@ const CameraView = () => {
         )}
       </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row gap-6 p-4 min-h-0">
-        {/* Camera Section */}
-        <div className="flex flex-col items-center justify-center lg:w-1/2">
-          <div className="w-full max-w-md">
+      <div className="flex-1 flex flex-col lg:flex-row gap-4 px-4 pt-4 pb-24 min-h-0">
+        {/* Left Frame: Camera Section */}
+        <div className="flex-1 flex flex-col p-6 overflow-y-auto">
+          <div className="flex-1 flex flex-col items-center justify-center min-h-0">
             {/* Camera Preview */}
-            <div className="relative bg-black rounded-2xl overflow-hidden shadow-macos-lg aspect-[3/4]">
+            <div className="relative bg-black rounded-2xl overflow-hidden shadow-macos-lg aspect-[3/4] w-full max-w-sm">
               {isCameraOn ? (
                 <>
                   <Webcam
@@ -105,13 +105,13 @@ const CameraView = () => {
             </div>
 
             {/* Camera Controls */}
-            <div className="mt-4 flex flex-col items-center gap-3">
+            <div className="mt-6 flex flex-col items-center gap-3 w-full max-w-sm">
               {!isCameraOn ? (
                 <Button
                   variant="primary"
                   size="lg"
                   onClick={toggleCamera}
-                  className="min-w-[200px]"
+                  className="w-full max-w-xs"
                 >
                   <CameraIcon className="w-5 h-5 mr-2" />
                   {COPY.camera.startCamera}
@@ -123,17 +123,18 @@ const CameraView = () => {
                     size="lg"
                     onClick={startCapture}
                     disabled={isCapturing || (allPhotosCaptured && retakeIndex === null)}
-                    className="min-w-[200px]"
+                    className="w-full max-w-xs"
                   >
                     <Circle className="w-5 h-5 mr-2" />
                     {COPY.camera.capture}
                   </Button>
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 w-full max-w-xs justify-center">
                     <Button
                       variant="secondary"
                       size="md"
                       onClick={toggleCamera}
+                      className="flex-1"
                     >
                       {COPY.camera.stopCamera}
                     </Button>
@@ -143,6 +144,7 @@ const CameraView = () => {
                         variant="ghost"
                         size="md"
                         onClick={cancelRetake}
+                        className="flex-1"
                       >
                         {COPY.global.cancel}
                       </Button>
@@ -154,8 +156,8 @@ const CameraView = () => {
           </div>
         </div>
 
-        {/* Photo Grid Section */}
-        <div className="flex flex-col lg:w-1/2 min-h-0">
+        {/* Right Frame: Photo Grid Section */}
+        <div className="flex-1 flex flex-col p-6 min-h-0">
           <PhotoGrid onRetake={initiateRetake} />
         </div>
       </div>
