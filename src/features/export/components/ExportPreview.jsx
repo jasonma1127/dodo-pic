@@ -136,105 +136,117 @@ const ExportPreview = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className="h-full flex flex-col container mx-auto px-4 py-4"
+      className="h-full flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden"
     >
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">
+      <div className="p-3 text-center flex-shrink-0">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           {COPY.export.title}
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-gray-600">
           {COPY.export.subtitle}
         </p>
       </div>
 
-      {/* Preview and Actions */}
-      <div className="max-w-3xl mx-auto">
-        {/* Image Preview */}
-        <div className="mb-8 rounded-2xl overflow-hidden shadow-macos bg-white p-4">
-          {composedImage ? (
-            <img
-              src={composedImage}
-              alt="Final composition"
-              className="w-full h-auto rounded-xl"
-            />
-          ) : (
-            <div className="aspect-[3/4] bg-gray-100 rounded-xl flex items-center justify-center">
-              <p className="text-gray-500">{COPY.export.error}</p>
-            </div>
-          )}
+      {/* Export Layout */}
+      <div className="flex-1 flex gap-4 px-4 pt-4 pb-24 min-h-0">
+        {/* Left: Image Preview */}
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full h-full flex items-center justify-center">
+            <div
+              className="h-full"
+              style={{ aspectRatio: `${selectedLayout.cols * 3} / ${selectedLayout.rows * 4}` }}
+            >
+              <div className="relative w-full h-full bg-white rounded-2xl shadow-macos overflow-hidden">
+                {composedImage ? (
+                  <img
+                    src={composedImage}
+                    alt="Final composition"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <p className="text-gray-500">{COPY.export.error}</p>
+                  </div>
+                )}
 
-          {/* File Info */}
-          {fileSize && (
-            <div className="mt-4 text-center text-sm text-gray-500">
-              {COPY.export.fileSize}: {fileSize}
+                {/* File Info Overlay */}
+                {fileSize && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm text-white text-sm py-2 px-4 text-center">
+                    {COPY.export.fileSize}: {fileSize}
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {/* Download Button */}
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={handleDownload}
-            disabled={!composedImage}
-            className="w-full"
-          >
-            <Download className="w-5 h-5 mr-2" />
-            {COPY.export.download}
-          </Button>
-
-          {/* Share Button */}
-          {isShareSupported() && (
+        {/* Right: Action Buttons (Fixed Sidebar) */}
+        <div className="flex items-center justify-center">
+          <div className="w-64 flex flex-col gap-3 flex-shrink-0">
+            {/* Download Button */}
             <Button
-              variant="secondary"
+              variant="primary"
               size="lg"
-              onClick={handleShare}
+              onClick={handleDownload}
               disabled={!composedImage}
               className="w-full"
             >
-              <Share2 className="w-5 h-5 mr-2" />
-              {COPY.export.share}
+              <Download className="w-5 h-5 mr-2" />
+              {COPY.export.download}
             </Button>
-          )}
 
-          {/* Copy Button */}
-          {navigator.clipboard && (
+            {/* Share Button */}
+            {isShareSupported() && (
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={handleShare}
+                disabled={!composedImage}
+                className="w-full"
+              >
+                <Share2 className="w-5 h-5 mr-2" />
+                {COPY.export.share}
+              </Button>
+            )}
+
+            {/* Copy Button */}
+            {navigator.clipboard && (
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={handleCopy}
+                disabled={!composedImage}
+                className="w-full"
+              >
+                {copySuccess ? (
+                  <>
+                    <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+                    {COPY.export.copied}
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-5 h-5 mr-2" />
+                    {COPY.export.copy}
+                  </>
+                )}
+              </Button>
+            )}
+
+            {/* Separator */}
+            <div className="border-t border-gray-300 my-2"></div>
+
+            {/* Restart Button */}
             <Button
-              variant="secondary"
+              variant="ghost"
               size="lg"
-              onClick={handleCopy}
-              disabled={!composedImage}
+              onClick={handleRestart}
               className="w-full"
             >
-              {copySuccess ? (
-                <>
-                  <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
-                  {COPY.export.copied}
-                </>
-              ) : (
-                <>
-                  <Copy className="w-5 h-5 mr-2" />
-                  {COPY.export.copy}
-                </>
-              )}
+              <RefreshCw className="w-5 h-5 mr-2" />
+              {COPY.export.restart}
             </Button>
-          )}
-        </div>
-
-        {/* Restart Button */}
-        <div className="text-center">
-          <Button
-            variant="ghost"
-            size="md"
-            onClick={handleRestart}
-            className="w-full md:w-auto"
-          >
-            <RefreshCw className="w-5 h-5 mr-2" />
-            {COPY.export.restart}
-          </Button>
+          </div>
         </div>
       </div>
 
