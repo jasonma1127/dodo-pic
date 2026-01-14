@@ -105,52 +105,50 @@ const CameraView = () => {
             </div>
 
             {/* Camera Controls */}
-            <div className="mt-6 flex flex-col items-center gap-3 w-full max-w-sm">
+            <div className="mt-6 w-full max-w-sm">
               {!isCameraOn ? (
                 <Button
                   variant="primary"
                   size="lg"
                   onClick={toggleCamera}
-                  className="w-full max-w-xs"
+                  className="w-full"
                 >
                   <CameraIcon className="w-5 h-5 mr-2" />
                   {COPY.camera.startCamera}
                 </Button>
               ) : (
-                <>
+                <div className="flex gap-3 w-full">
                   <Button
                     variant="primary"
                     size="lg"
                     onClick={startCapture}
                     disabled={isCapturing || (allPhotosCaptured && retakeIndex === null)}
-                    className="w-full max-w-xs"
+                    className="flex-1"
                   >
                     <Circle className="w-5 h-5 mr-2" />
                     {COPY.camera.capture}
                   </Button>
 
-                  <div className="flex gap-3 w-full max-w-xs justify-center">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={toggleCamera}
+                    className="flex-1"
+                  >
+                    {COPY.camera.stopCamera}
+                  </Button>
+
+                  {retakeIndex !== null && (
                     <Button
-                      variant="secondary"
-                      size="md"
-                      onClick={toggleCamera}
+                      variant="ghost"
+                      size="lg"
+                      onClick={cancelRetake}
                       className="flex-1"
                     >
-                      {COPY.camera.stopCamera}
+                      {COPY.global.cancel}
                     </Button>
-
-                    {retakeIndex !== null && (
-                      <Button
-                        variant="ghost"
-                        size="md"
-                        onClick={cancelRetake}
-                        className="flex-1"
-                      >
-                        {COPY.global.cancel}
-                      </Button>
-                    )}
-                  </div>
-                </>
+                  )}
+                </div>
               )}
             </div>
           </div>
