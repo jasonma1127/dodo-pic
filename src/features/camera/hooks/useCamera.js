@@ -116,13 +116,8 @@ export const useCamera = () => {
 
       // Check if all photos captured
       if (areAllPhotosCaptured() || (retakeIndex !== null && photos.length === maxPhotos)) {
-        // Enable next step
+        // Enable next step - let user manually proceed
         setCanGoNext(true);
-
-        // Auto-advance to editor after short delay
-        setTimeout(() => {
-          nextStep();
-        }, 1500);
       }
     } catch (error) {
       console.error('Capture error:', error);
