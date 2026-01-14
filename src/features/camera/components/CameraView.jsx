@@ -77,6 +77,7 @@ const CameraView = () => {
                   }}
                   onUserMediaError={handleCameraError}
                   className="w-full h-full object-cover"
+                  mirrored={true}
                 />
 
                 {/* Countdown Overlay */}
