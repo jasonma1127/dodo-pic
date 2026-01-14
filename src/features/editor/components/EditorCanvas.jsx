@@ -43,14 +43,20 @@ const EditorCanvas = () => {
     ...frameStyle,
   };
 
+  // Calculate aspect ratio for the canvas container (same as PhotoGrid)
+  const canvasAspectRatio = `${selectedLayout.cols * 3} / ${selectedLayout.rows * 4}`;
+
   return (
-    <div className="relative w-full max-w-4xl mx-auto">
-      {/* Main Canvas */}
+    <div className="w-full h-full flex items-center justify-center">
       <div
-        ref={canvasRef}
-        className="relative bg-white rounded-2xl shadow-macos overflow-hidden"
-        style={{ aspectRatio: `${selectedLayout.cols}/${selectedLayout.rows}` }}
+        className="h-full"
+        style={{ aspectRatio: canvasAspectRatio }}
       >
+        {/* Main Canvas */}
+        <div
+          ref={canvasRef}
+          className="relative w-full h-full bg-white rounded-2xl shadow-macos overflow-hidden"
+        >
         {/* Photo Grid */}
         <div style={gridStyle} className="w-full h-full p-2">
           {photos.map((photo, index) => (
@@ -80,6 +86,7 @@ const EditorCanvas = () => {
           ))}
         </div>
       </div>
+    </div>
     </div>
   );
 };

@@ -28,7 +28,7 @@ const EditorToolbar = () => {
   const ActivePanel = tabs.find(t => t.id === activeTab)?.panel || FilterPanel;
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-macos p-6">
+    <div className="w-full max-w-2xl bg-white rounded-2xl shadow-macos p-6">
       {/* Tab Navigation */}
       <div className="flex gap-2 mb-6 border-b border-gray-200">
         {tabs.map((tab) => {
