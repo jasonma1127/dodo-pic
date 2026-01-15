@@ -7,6 +7,24 @@ import { getFilterCSS } from '@/features/editor/constants/filters';
 import { getFrameStyle } from '@/features/editor/constants/frames';
 
 /**
+ * Parse CSS border style string into width and color
+ * @param {string} borderStyle - CSS border style (e.g., "16px solid white")
+ * @returns {Object|null} { width: number, color: string } or null
+ */
+const parseBorderStyle = (borderStyle) => {
+  if (!borderStyle) return null;
+
+  // Parse "16px solid white" or "12px solid #1a1a1a"
+  const match = borderStyle.match(/^(\d+)px\s+solid\s+(.+)$/);
+  if (!match) return null;
+
+  return {
+    width: parseInt(match[1]),
+    color: match[2] === 'white' ? '#ffffff' : match[2],
+  };
+};
+
+/**
  * Composite final image from photos, layout, filter, and frame
  * @param {Object} options - Composition options
  * @param {Array<string>} options.photos - Array of photo data URLs
@@ -38,27 +56,32 @@ export const compositeImage = async ({
 
         console.log('Photo dimensions:', cellWidth, 'x', cellHeight);
 
-        // Create canvas
+        // Parse frame properties
+        const frameStyle = getFrameStyle(frameId);
+        const frameBorder = parseBorderStyle(frameStyle.border);
+        const borderWidth = frameBorder ? frameBorder.width : 0;
+
+        // Create canvas with extra space for frame border
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
 
-        canvas.width = layout.cols * cellWidth + (layout.cols - 1) * gap + padding * 2;
-        canvas.height = layout.rows * cellHeight + (layout.rows - 1) * gap + padding * 2;
+        const contentWidth = layout.cols * cellWidth + (layout.cols - 1) * gap + padding * 2;
+        const contentHeight = layout.rows * cellHeight + (layout.rows - 1) * gap + padding * 2;
+
+        canvas.width = contentWidth + borderWidth * 2;
+        canvas.height = contentHeight + borderWidth * 2;
 
         console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
 
-        // Fill background (white)
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Apply frame background if needed
-        const frameStyle = getFrameStyle(frameId);
-        if (frameStyle.border) {
-          // Parse border width from style
-          const borderWidth = parseInt(frameStyle.border) || 0;
-          ctx.fillStyle = frameStyle.border.includes('white') ? '#ffffff' : '#1a1a1a';
+        // Fill entire canvas with frame border color (if frame exists)
+        if (frameBorder) {
+          ctx.fillStyle = frameBorder.color;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
+
+        // Fill inner content area with white background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(borderWidth, borderWidth, contentWidth, contentHeight);
 
         // Load and draw all photos
         const photoPromises = photos.map((photoUrl, index) => {
@@ -69,8 +92,10 @@ export const compositeImage = async ({
             img.onload = () => {
               const row = Math.floor(index / layout.cols);
               const col = index % layout.cols;
-              const x = padding + col * (cellWidth + gap);
-              const y = padding + row * (cellHeight + gap);
+
+              // Calculate position with border offset
+              const x = borderWidth + padding + col * (cellWidth + gap);
+              const y = borderWidth + padding + row * (cellHeight + gap);
 
               // Save context
               ctx.save();
