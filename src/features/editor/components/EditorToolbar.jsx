@@ -10,9 +10,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Wand2, Smile, Frame } from 'lucide-react';
+import { Wand2, Frame } from 'lucide-react';
 import FilterPanel from './FilterPanel';
-import StickerPanel from './StickerPanel';
 import FramePanel from './FramePanel';
 import { COPY } from '@/shared/copy/en';
 
@@ -21,7 +20,6 @@ const EditorToolbar = () => {
 
   const tabs = [
     { id: 'filters', label: COPY.editor.tabs.filters, icon: Wand2, panel: FilterPanel },
-    { id: 'stickers', label: COPY.editor.tabs.stickers, icon: Smile, panel: StickerPanel },
     { id: 'frames', label: COPY.editor.tabs.frames, icon: Frame, panel: FramePanel },
   ];
 

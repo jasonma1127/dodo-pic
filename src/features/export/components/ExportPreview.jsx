@@ -32,7 +32,7 @@ const ExportPreview = () => {
 
   const { photos } = usePhotoStore();
   const { selectedLayout } = useLayoutStore();
-  const { currentFilter, appliedStickers, selectedFrame } = useEditorStore();
+  const { currentFilter, selectedFrame } = useEditorStore();
   const { resetWorkflow } = useWorkflowStore();
 
   // Compose image on mount
@@ -52,7 +52,6 @@ const ExportPreview = () => {
           layout: selectedLayout,
           filterId: currentFilter,
           frameId: selectedFrame,
-          stickers: appliedStickers,
           quality: 0.95,
         });
 
@@ -66,7 +65,7 @@ const ExportPreview = () => {
     };
 
     compose();
-  }, [photos, selectedLayout, currentFilter, selectedFrame, appliedStickers]);
+  }, [photos, selectedLayout, currentFilter, selectedFrame]);
 
   const handleDownload = () => {
     if (composedImage) {

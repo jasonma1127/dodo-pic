@@ -7,13 +7,12 @@ import { getFilterCSS } from '@/features/editor/constants/filters';
 import { getFrameStyle } from '@/features/editor/constants/frames';
 
 /**
- * Composite final image from photos, layout, filter, frame, and stickers
+ * Composite final image from photos, layout, filter, and frame
  * @param {Object} options - Composition options
  * @param {Array<string>} options.photos - Array of photo data URLs
  * @param {Object} options.layout - Layout configuration
  * @param {string} options.filterId - Filter ID
  * @param {string} options.frameId - Frame ID
- * @param {Array<Object>} options.stickers - Array of sticker objects
  * @param {number} options.quality - Output quality (0-1), default 0.95
  * @returns {Promise<string>} Data URL of composed image
  */
@@ -22,7 +21,6 @@ export const compositeImage = async ({
   layout,
   filterId = 'none',
   frameId = 'none',
-  stickers = [],
   quality = 0.95,
 }) => {
   return new Promise((resolve, reject) => {
@@ -103,16 +101,13 @@ export const compositeImage = async ({
 
         // Wait for all photos to load and draw
         Promise.all(photoPromises).then(() => {
-          // Draw stickers
-          const stickerPromises = stickers.map((sticker) => {
-            return drawSticker(ctx, sticker, canvas.width, canvas.height);
-          });
-
-          Promise.all(stickerPromises).then(() => {
-            // Convert to data URL
-            const dataUrl = canvas.toDataURL('image/jpeg', quality);
-            resolve(dataUrl);
-          });
+          console.log('All photos loaded');
+          // Convert to data URL
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(dataUrl);
+        }).catch((error) => {
+          console.error('Error loading photos:', error);
+          reject(error);
         });
       };
 
@@ -124,37 +119,6 @@ export const compositeImage = async ({
     } catch (error) {
       reject(error);
     }
-  });
-};
-
-/**
- * Draw sticker on canvas
- * @param {CanvasRenderingContext2D} ctx - Canvas context
- * @param {Object} sticker - Sticker object
- * @param {number} canvasWidth - Canvas width
- * @param {number} canvasHeight - Canvas height
- */
-const drawSticker = (ctx, sticker, canvasWidth, canvasHeight) => {
-  return new Promise((resolve) => {
-    ctx.save();
-
-    // Calculate absolute position from percentage
-    const x = (sticker.x / 100) * canvasWidth;
-    const y = (sticker.y / 100) * canvasHeight;
-
-    // Move to sticker position
-    ctx.translate(x, y);
-    ctx.rotate((sticker.rotation * Math.PI) / 180);
-    ctx.scale(sticker.scale, sticker.scale);
-
-    // Draw emoji as text
-    ctx.font = '120px Arial'; // Large size for high quality
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(sticker.emoji, 0, 0);
-
-    ctx.restore();
-    resolve();
   });
 };
 
