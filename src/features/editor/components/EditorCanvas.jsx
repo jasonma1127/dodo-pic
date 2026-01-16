@@ -1,13 +1,11 @@
 /**
  * EditorCanvas Component
- * Main canvas for displaying photos with filters, stickers, and frames
+ * Main canvas for displaying photos with filters and frames
  *
  * Features:
  * - Displays photo grid matching selected layout
  * - Applies current filter to all photos
- * - Renders stickers with drag/scale/rotate support
- * - Shows frame around entire composition
- * - Click sticker to select, drag to move, handles to resize/rotate
+ * - Shows frame preview around entire composition
  */
 
 import { useRef } from 'react';

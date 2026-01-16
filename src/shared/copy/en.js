@@ -73,10 +73,9 @@ export const COPY = {
   // Editor (Step 3)
   editor: {
     title: "Edit Your Photos",
-    subtitle: "Apply filters, add stickers, and frames",
+    subtitle: "Apply filters and frames",
     tabs: {
       filters: "Filters",
-      stickers: "Stickers",
       frames: "Frames",
     },
     filters: {
@@ -84,13 +83,6 @@ export const COPY = {
       noFilter: "Original",
       apply: "Apply",
       applied: "Applied",
-    },
-    stickers: {
-      title: "Add Stickers",
-      hint: "Click to add, drag to move, use controls to adjust",
-      deleteHint: "Click outside to deselect",
-      noStickers: "No stickers added yet",
-      addSticker: "Click a sticker to add it",
     },
     frames: {
       title: "Select a Frame",
@@ -106,7 +98,6 @@ export const COPY = {
     },
     hints: {
       filterHint: "Filters are applied to all photos",
-      stickerHint: "Stickers appear on the final composite",
       frameHint: "Frames wrap around the entire layout",
     },
   },
@@ -221,23 +212,6 @@ export const COPY = {
     },
   },
 
-  // Stickers (Categories)
-  stickers: {
-    categories: {
-      all: "All",
-      emoji: "Emoji",
-      shapes: "Shapes",
-      text: "Text",
-      decorations: "Decorations",
-    },
-    actions: {
-      add: "Add Sticker",
-      remove: "Remove",
-      bringForward: "Bring Forward",
-      sendBackward: "Send Backward",
-    },
-  },
-
   // Frames
   frames: {
     none: {
@@ -292,7 +266,6 @@ export const COPY = {
     editButton: "Edit",
     layoutOption: (name) => `Select ${name} layout`,
     filterOption: (name) => `Apply ${name} filter`,
-    stickerOption: (name) => `Add ${name} sticker`,
     frameOption: (name) => `Apply ${name} frame`,
     photoThumbnail: (index, total) => `Photo ${index} of ${total}`,
     retakePhoto: (index) => `Retake photo ${index}`,
@@ -311,7 +284,6 @@ export const COPY = {
   success: {
     photosCaptured: "All photos captured!",
     filterApplied: "Filter applied successfully",
-    stickerAdded: "Sticker added",
     frameApplied: "Frame applied",
     exported: "Image ready for download!",
   },
@@ -338,7 +310,6 @@ export const {
   export: exportCopy,
   workflow,
   filters,
-  stickers,
   frames,
   errors,
   a11y,
