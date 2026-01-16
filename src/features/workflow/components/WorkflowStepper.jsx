@@ -15,14 +15,14 @@ const WorkflowStepper = () => {
   return (
     <div className="w-full bg-white border-b border-ios-gray-200 py-4 px-6">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center gap-2">
           {steps.map((step, index) => {
             const isCompleted = index < currentIndex;
             const isCurrent = index === currentIndex;
             const stepLabel = COPY.workflow.steps[step];
 
             return (
-              <div key={step} className="flex items-center flex-1">
+              <div key={step} className="flex items-center">
                 {/* Step Indicator */}
                 <div className="flex flex-col items-center">
                   <motion.div
@@ -59,7 +59,7 @@ const WorkflowStepper = () => {
 
                 {/* Connector Line */}
                 {index < steps.length - 1 && (
-                  <div className="flex-1 h-0.5 mx-4 mt-[-28px] bg-ios-gray-200">
+                  <div className="w-24 h-0.5 mx-4 mt-[-28px] bg-ios-gray-200">
                     <motion.div
                       className="h-full bg-ios-blue"
                       initial={{ width: 0 }}
