@@ -148,7 +148,7 @@ const ExportPreview = () => {
       </div>
 
       {/* Export Layout */}
-      <div className="flex-1 flex gap-4 px-4 pt-4 pb-24 min-h-0">
+      <div className="flex-1 flex gap-4 px-4 pt-4 pb-32 min-h-0">
         {/* Left: Image Preview */}
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="w-full h-full flex items-center justify-center">
@@ -166,13 +166,6 @@ const ExportPreview = () => {
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-100">
                     <p className="text-gray-500">{COPY.export.error}</p>
-                  </div>
-                )}
-
-                {/* File Info Overlay */}
-                {fileSize && (
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm text-white text-sm py-2 px-4 text-center">
-                    {COPY.export.fileSize}: {fileSize}
                   </div>
                 )}
               </div>
@@ -245,6 +238,13 @@ const ExportPreview = () => {
               <RefreshCw className="w-5 h-5 mr-2" />
               {COPY.export.restart}
             </Button>
+
+            {/* File Size Info */}
+            {fileSize && (
+              <div className="mt-4 text-center text-sm text-gray-500">
+                {COPY.export.fileSize}: {fileSize}
+              </div>
+            )}
           </div>
         </div>
       </div>

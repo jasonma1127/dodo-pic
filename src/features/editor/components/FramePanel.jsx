@@ -35,7 +35,10 @@ const FramePanel = () => {
             frame={frame}
             isSelected={selectedFrame === frame.id}
             previewPhoto={previewPhoto}
-            onSelect={() => setFrame(frame.id)}
+            onSelect={() => {
+              console.log('Setting frame to:', frame.id);
+              setFrame(frame.id);
+            }}
           />
         ))}
       </div>
