@@ -99,13 +99,3 @@ export const getFrameImagePath = (frameId, layoutId) => {
   const frame = getFrameById(frameId);
   return frame?.layouts?.[layoutId] || null;
 };
-
-/**
- * Check if frame has decorator
- * @param {string} frameId - Frame identifier
- * @returns {string|null} Decorator type or null
- */
-export const getFrameDecorator = (frameId) => {
-  const frame = getFrameById(frameId);
-  return frame?.decorator || null;
-};

@@ -8,13 +8,11 @@
  * - Shows frame preview around entire composition
  */
 
-import { useRef } from 'react';
 import { usePhotoStore, useLayoutStore, useEditorStore } from '@/store';
 import { getFilterCSS } from '../constants/filters';
 import { getFrameStyle } from '../constants/frames';
 
 const EditorCanvas = () => {
-  const canvasRef = useRef(null);
   const { photos } = usePhotoStore();
   const { selectedLayout } = useLayoutStore();
   const { currentFilter, selectedFrame } = useEditorStore();
@@ -49,10 +47,7 @@ const EditorCanvas = () => {
         style={{ aspectRatio: canvasAspectRatio }}
       >
         {/* Main Canvas */}
-        <div
-          ref={canvasRef}
-          className="relative w-full h-full bg-white rounded-2xl shadow-macos overflow-hidden"
-        >
+        <div className="relative w-full h-full bg-white rounded-2xl shadow-macos overflow-hidden">
         {/* Photo Grid */}
         <div style={gridStyle} className="w-full h-full p-2">
           {photos.map((photo, index) => (

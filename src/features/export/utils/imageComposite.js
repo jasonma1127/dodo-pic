@@ -52,9 +52,6 @@ export const compositeImage = async ({
       // Use standard fixed dimensions (like real photo booth machines)
       const { width: canvasWidth, height: canvasHeight } = getCanvasDimensions(layout);
 
-      console.log('Using standard canvas dimensions:', canvasWidth, 'x', canvasHeight);
-      console.log('Cell size:', STANDARD_CELL_WIDTH, 'x', STANDARD_CELL_HEIGHT);
-
       // Create canvas with fixed dimensions
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -79,8 +76,6 @@ export const compositeImage = async ({
             // Calculate position using standard dimensions
             const x = CANVAS_PADDING + col * (STANDARD_CELL_WIDTH + CELL_GAP);
             const y = CANVAS_PADDING + row * (STANDARD_CELL_HEIGHT + CELL_GAP);
-
-            console.log(`Drawing photo ${index} at (${x}, ${y}) with size ${STANDARD_CELL_WIDTH}x${STANDARD_CELL_HEIGHT}`);
 
             // Save context
             ctx.save();
@@ -123,7 +118,6 @@ export const compositeImage = async ({
             // Restore context
             ctx.restore();
 
-            console.log(`Photo ${index} drawn successfully`);
             resolvePhoto();
           };
 
@@ -138,18 +132,14 @@ export const compositeImage = async ({
 
       // Wait for all photos to load and draw
       Promise.all(photoPromises).then(() => {
-        console.log('All photos loaded');
-
         // Load and draw frame overlay (if exists)
         const framePath = getFrameImagePath(frameId, layout.id);
 
         if (framePath) {
-          console.log('Loading frame overlay:', framePath, 'for layout:', layout.id);
           const frameImg = new Image();
           frameImg.crossOrigin = 'anonymous';
 
           frameImg.onload = () => {
-            console.log('Frame loaded, drawing overlay');
             // Draw frame as overlay on top of photos (frame will be exact canvas size)
             ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
 
@@ -178,30 +168,5 @@ export const compositeImage = async ({
     } catch (error) {
       reject(error);
     }
-  });
-};
-
-/**
- * Create a preview thumbnail of the composite image
- * @param {string} dataUrl - Original data URL
- * @param {number} maxWidth - Maximum width
- * @returns {Promise<string>} Thumbnail data URL
- */
-export const createThumbnail = (dataUrl, maxWidth = 400) => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      const scale = maxWidth / img.width;
-      canvas.width = maxWidth;
-      canvas.height = img.height * scale;
-
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL('image/jpeg', 0.8));
-    };
-    img.onerror = reject;
-    img.src = dataUrl;
   });
 };
