@@ -34,7 +34,7 @@ const LayoutSelector = () => {
 
   return (
     <motion.div
-      className="h-full flex flex-col items-center justify-start pt-12 pb-28 px-6 bg-gradient-to-br from-slate-50 to-slate-100 overflow-y-auto"
+      className="h-full flex flex-col items-center justify-start pt-12 pb-32 px-6 bg-gradient-to-br from-slate-50 to-slate-100 overflow-y-auto"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

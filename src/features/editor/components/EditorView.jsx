@@ -42,7 +42,7 @@ const EditorView = () => {
       </div>
 
       {/* Editor Layout */}
-      <div className="flex-1 flex gap-4 px-4 pt-4 pb-24 min-h-0">
+      <div className="flex-1 flex gap-4 px-4 pt-4 pb-32 min-h-0">
         {/* Left: Canvas Area */}
         <div className="flex-1 flex items-center justify-center p-6">
           <EditorCanvas />

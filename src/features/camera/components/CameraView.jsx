@@ -60,7 +60,7 @@ const CameraView = () => {
         )}
       </div>
 
-      <div className="flex-1 flex gap-4 px-4 pt-4 pb-24 min-h-0">
+      <div className="flex-1 flex gap-4 px-4 pt-4 pb-32 min-h-0">
         {/* Left Frame: Camera Section */}
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="relative bg-black rounded-2xl overflow-hidden shadow-macos-lg aspect-[3/4] w-full max-w-sm flex-shrink-0">
