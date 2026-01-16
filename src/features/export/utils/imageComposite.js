@@ -1,6 +1,6 @@
 /**
  * Image Composite Utilities
- * Functions for compositing photos, filters, frames, and stickers into final image
+ * Functions for compositing photos, filters, and frames into final image
  */
 
 import { getFilterCSS } from '@/features/editor/constants/filters';

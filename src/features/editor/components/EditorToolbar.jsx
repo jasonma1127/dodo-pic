@@ -3,7 +3,7 @@
  * Tabbed toolbar for switching between editor panels
  *
  * Features:
- * - Tab navigation (Filters, Stickers, Frames)
+ * - Tab navigation (Filters, Frames)
  * - Animated tab indicator
  * - Displays corresponding panel based on active tab
  */
