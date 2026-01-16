@@ -4,24 +4,30 @@
  */
 
 import { getFilterCSS } from '@/features/editor/constants/filters';
-import { getFrameStyle } from '@/features/editor/constants/frames';
+import { getFrameImagePath } from '@/features/editor/constants/frames';
+
+// Standard photo booth dimensions (like real photo booth machines)
+// Using webcam's actual resolution: 1280 x 1920 (2:3 ratio from camera)
+const STANDARD_CELL_WIDTH = 1280;  // Each photo cell width (matches webcam)
+const STANDARD_CELL_HEIGHT = 1920; // Each photo cell height (matches webcam)
+const CELL_GAP = 16;                // Gap between photos
+const CANVAS_PADDING = 32;          // Padding around the entire grid
 
 /**
- * Parse CSS border style string into width and color
- * @param {string} borderStyle - CSS border style (e.g., "16px solid white")
- * @returns {Object|null} { width: number, color: string } or null
+ * Calculate standard canvas dimensions for a layout
+ * This ensures frame images can be designed with fixed dimensions
+ *
+ * Layout output sizes (based on 1280x1920 cells):
+ * - 2x2: 2624 x 3904 pixels
+ * - 4x1: 5168 x 1984 pixels
+ * - 1x4: 1344 x 7744 pixels
+ * - 3x3: 3904 x 5824 pixels
+ * - 2x3: 2624 x 5824 pixels
  */
-const parseBorderStyle = (borderStyle) => {
-  if (!borderStyle) return null;
-
-  // Parse "16px solid white" or "12px solid #1a1a1a"
-  const match = borderStyle.match(/^(\d+)px\s+solid\s+(.+)$/);
-  if (!match) return null;
-
-  return {
-    width: parseInt(match[1]),
-    color: match[2] === 'white' ? '#ffffff' : match[2],
-  };
+const getCanvasDimensions = (layout) => {
+  const width = layout.cols * STANDARD_CELL_WIDTH + (layout.cols - 1) * CELL_GAP + CANVAS_PADDING * 2;
+  const height = layout.rows * STANDARD_CELL_HEIGHT + (layout.rows - 1) * CELL_GAP + CANVAS_PADDING * 2;
+  return { width, height };
 };
 
 /**
@@ -43,104 +49,132 @@ export const compositeImage = async ({
 }) => {
   return new Promise((resolve, reject) => {
     try {
-      // First, load the first photo to get actual dimensions
-      const firstImg = new Image();
-      firstImg.crossOrigin = 'anonymous';
+      // Use standard fixed dimensions (like real photo booth machines)
+      const { width: canvasWidth, height: canvasHeight } = getCanvasDimensions(layout);
 
-      firstImg.onload = () => {
-        // Use actual photo dimensions (no resize!)
-        const cellWidth = firstImg.width;
-        const cellHeight = firstImg.height;
-        const gap = 16; // gap between photos
-        const padding = 32; // padding around grid
+      console.log('Using standard canvas dimensions:', canvasWidth, 'x', canvasHeight);
+      console.log('Cell size:', STANDARD_CELL_WIDTH, 'x', STANDARD_CELL_HEIGHT);
 
-        console.log('Photo dimensions:', cellWidth, 'x', cellHeight);
+      // Create canvas with fixed dimensions
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
 
-        // Parse frame properties
-        const frameStyle = getFrameStyle(frameId);
-        const frameBorder = parseBorderStyle(frameStyle.border);
-        const borderWidth = frameBorder ? frameBorder.width : 0;
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
 
-        // Create canvas with extra space for frame border
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+      // Fill white background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        const contentWidth = layout.cols * cellWidth + (layout.cols - 1) * gap + padding * 2;
-        const contentHeight = layout.rows * cellHeight + (layout.rows - 1) * gap + padding * 2;
+      // Load and draw all photos (resized to standard dimensions)
+      const photoPromises = photos.map((photoUrl, index) => {
+        return new Promise((resolvePhoto) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
 
-        canvas.width = contentWidth + borderWidth * 2;
-        canvas.height = contentHeight + borderWidth * 2;
+          img.onload = () => {
+            const row = Math.floor(index / layout.cols);
+            const col = index % layout.cols;
 
-        console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+            // Calculate position using standard dimensions
+            const x = CANVAS_PADDING + col * (STANDARD_CELL_WIDTH + CELL_GAP);
+            const y = CANVAS_PADDING + row * (STANDARD_CELL_HEIGHT + CELL_GAP);
 
-        // Fill entire canvas with frame border color (if frame exists)
-        if (frameBorder) {
-          ctx.fillStyle = frameBorder.color;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
+            console.log(`Drawing photo ${index} at (${x}, ${y}) with size ${STANDARD_CELL_WIDTH}x${STANDARD_CELL_HEIGHT}`);
 
-        // Fill inner content area with white background
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(borderWidth, borderWidth, contentWidth, contentHeight);
+            // Save context
+            ctx.save();
 
-        // Load and draw all photos
-        const photoPromises = photos.map((photoUrl, index) => {
-          return new Promise((resolvePhoto) => {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
+            // Apply filter
+            const filterCSS = getFilterCSS(filterId);
+            if (filterCSS !== 'none') {
+              ctx.filter = filterCSS;
+            }
 
-            img.onload = () => {
-              const row = Math.floor(index / layout.cols);
-              const col = index % layout.cols;
+            // Calculate scaling to cover the cell (like object-fit: cover)
+            // This prevents distortion while filling the entire cell
+            const imgAspect = img.width / img.height;
+            const cellAspect = STANDARD_CELL_WIDTH / STANDARD_CELL_HEIGHT;
 
-              // Calculate position with border offset
-              const x = borderWidth + padding + col * (cellWidth + gap);
-              const y = borderWidth + padding + row * (cellHeight + gap);
+            let drawWidth, drawHeight, offsetX, offsetY;
 
-              // Save context
-              ctx.save();
+            if (imgAspect > cellAspect) {
+              // Image is wider than cell - fit to height and crop width
+              drawHeight = STANDARD_CELL_HEIGHT;
+              drawWidth = img.width * (STANDARD_CELL_HEIGHT / img.height);
+              offsetX = (STANDARD_CELL_WIDTH - drawWidth) / 2;
+              offsetY = 0;
+            } else {
+              // Image is taller than cell - fit to width and crop height
+              drawWidth = STANDARD_CELL_WIDTH;
+              drawHeight = img.height * (STANDARD_CELL_WIDTH / img.width);
+              offsetX = 0;
+              offsetY = (STANDARD_CELL_HEIGHT - drawHeight) / 2;
+            }
 
-              // Apply filter
-              const filterCSS = getFilterCSS(filterId);
-              if (filterCSS !== 'none') {
-                ctx.filter = filterCSS;
-              }
+            // Clip to cell boundaries
+            ctx.beginPath();
+            ctx.rect(x, y, STANDARD_CELL_WIDTH, STANDARD_CELL_HEIGHT);
+            ctx.clip();
 
-              // Draw photo at its original size (no resize!)
-              ctx.drawImage(img, x, y, cellWidth, cellHeight);
+            // Draw photo with cover scaling (maintains aspect ratio)
+            ctx.drawImage(img, x + offsetX, y + offsetY, drawWidth, drawHeight);
 
-              // Restore context
-              ctx.restore();
+            // Restore context
+            ctx.restore();
 
-              resolvePhoto();
-            };
+            console.log(`Photo ${index} drawn successfully`);
+            resolvePhoto();
+          };
 
-            img.onerror = () => {
-              console.error('Failed to load photo:', index);
-              resolvePhoto(); // Continue even if one photo fails
-            };
+          img.onerror = () => {
+            console.error('Failed to load photo:', index);
+            resolvePhoto(); // Continue even if one photo fails
+          };
 
-            img.src = photoUrl;
-          });
+          img.src = photoUrl;
         });
+      });
 
-        // Wait for all photos to load and draw
-        Promise.all(photoPromises).then(() => {
-          console.log('All photos loaded');
-          // Convert to data URL
+      // Wait for all photos to load and draw
+      Promise.all(photoPromises).then(() => {
+        console.log('All photos loaded');
+
+        // Load and draw frame overlay (if exists)
+        const framePath = getFrameImagePath(frameId, layout.id);
+
+        if (framePath) {
+          console.log('Loading frame overlay:', framePath, 'for layout:', layout.id);
+          const frameImg = new Image();
+          frameImg.crossOrigin = 'anonymous';
+
+          frameImg.onload = () => {
+            console.log('Frame loaded, drawing overlay');
+            // Draw frame as overlay on top of photos (frame will be exact canvas size)
+            ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
+
+            // Convert to data URL
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve(dataUrl);
+          };
+
+          frameImg.onerror = () => {
+            console.error('Failed to load frame image:', framePath);
+            // Continue without frame
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve(dataUrl);
+          };
+
+          frameImg.src = framePath;
+        } else {
+          // No frame, convert to data URL directly
           const dataUrl = canvas.toDataURL('image/jpeg', quality);
           resolve(dataUrl);
-        }).catch((error) => {
-          console.error('Error loading photos:', error);
-          reject(error);
-        });
-      };
-
-      firstImg.onerror = () => {
-        reject(new Error('Failed to load first photo'));
-      };
-
-      firstImg.src = photos[0];
+        }
+      }).catch((error) => {
+        console.error('Error loading photos:', error);
+        reject(error);
+      });
     } catch (error) {
       reject(error);
     }
