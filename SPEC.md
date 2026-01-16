@@ -1,7 +1,7 @@
 # DodoPic - Software Design Specification
 
-**Version:** 2.0.0
-**Last Updated:** 2026-01-12
+**Version:** 2.1.0
+**Last Updated:** 2026-01-16
 **Status:** In Development
 
 ---
@@ -31,19 +31,19 @@ DodoPic is a modern, web-based photo booth application that brings the joy of in
 - **Tertiary**: Content creators seeking quick photo collage tools
 
 ### 1.3 Key Features
-- **3 Layout Options**: Classic 2x2, vertical strip, and 3x3 grid
+- **5 Layout Options**: Classic 2x2, horizontal strip (4x1), vertical strip (1x4), 3x3 grid, and 2x3 grid
 - **Complete Workflow**: Layout selection → Photo capture → Editing → Export/Share
 - **Photo Editing**:
   - 6+ filter presets (B&W, Vintage, Vivid, Cool/Warm tones)
-  - Sticker decorations (draggable, scalable, rotatable)
-  - Frame overlays (rounded, film strip, torn edges)
+  - PNG frame overlays (layout-specific, high-resolution image overlays)
 - **Retake Functionality**: Replace individual photos without restarting
-- **Export Options**: Download to device or share via Web Share API
+- **Export Options**: Download high-resolution JPEG or share via Web Share API
 - **Modern UI**: macOS/iOS-inspired design with smooth animations
+- **Fixed Dimensions**: All photos use consistent 1280×1920 resolution (matches webcam)
 
 ### 1.4 Success Metrics
 - **Performance**: Load time < 3s, capture-to-preview < 1s
-- **Quality**: Final image export at 1200x1800px minimum
+- **Quality**: Final image export at high resolution (e.g., 2x2: 2624×3904px)
 - **Compatibility**: Works on latest Chrome, Safari, Firefox (desktop + mobile)
 - **User Experience**: Complete workflow in < 2 minutes
 
@@ -60,8 +60,8 @@ DodoPic is a modern, web-based photo booth application that brings the joy of in
 │  ┌────────────┐   ┌──────────────┐   ┌─────────────┐      │
 │  │  Layout    │──▶│   Camera     │──▶│   Editor    │──┐   │
 │  │ Selection  │   │  & Capture   │   │  (Filters,  │  │   │
-│  └────────────┘   └──────────────┘   │  Stickers,  │  │   │
-│                                       │   Frames)   │  │   │
+│  └────────────┘   └──────────────┘   │   Frames)   │  │   │
+│                                       │             │  │   │
 │                                       └─────────────┘  │   │
 │                                              │         │   │
 │                                              ▼         │   │
@@ -107,11 +107,9 @@ App.jsx
 │   ├── Canvas preview
 │   ├── FilterPanel
 │   │   └── FilterOption × 6
-│   ├── StickerPanel
-│   │   └── StickerItem × 10-15
 │   └── FramePanel
-│       └── FrameOption × 5-8
-│   └── [Triggers: editorStore.setFilter(), addSticker()]
+│       └── FrameOption (with layout-specific PNG overlays)
+│   └── [Triggers: editorStore.setFilter(), setFrame()]
 │
 ├── ExportPreview (Step 4)
 │   ├── Final composite preview
@@ -286,45 +284,44 @@ type Layout = {
 
 ```javascript
 /**
- * Manages photo editing state (filters, stickers, frames)
+ * Manages photo editing state (filters, frames)
  */
 {
   // State
   currentFilter: 'none',           // FilterId
-  appliedStickers: [],             // Array<Sticker>
-  selectedFrame: null,             // Frame | null
+  selectedFrame: 'none',           // FrameId
 
   // Actions
   setFilter: (filterId) => void,
-  addSticker: (sticker) => void,
-  updateSticker: (stickerId, updates) => void,
-  removeSticker: (stickerId) => void,
-  setFrame: (frame) => void,
+  setFrame: (frameId) => void,
   resetEditor: () => void,
-}
-
-/**
- * Sticker Type Definition
- */
-type Sticker = {
-  id: string,           // Unique identifier
-  src: string,          // Image source path
-  x: number,            // X position (px)
-  y: number,            // Y position (px)
-  scale: number,        // Scale factor (0.5 - 2.0)
-  rotation: number,     // Rotation in degrees (0 - 360)
-  zIndex: number,       // Layer order
 }
 
 /**
  * Frame Type Definition
  */
 type Frame = {
-  id: string,           // 'rounded', 'film', 'torn', etc.
-  name: string,         // Display name
-  src: string,          // SVG or PNG path
-  type: 'overlay' | 'border',  // Overlay = on top, Border = around
+  id: string,                      // 'none', 'polaroid', 'film-strip', etc.
+  name: string,                    // Display name
+  layouts: {                       // Layout-specific frame images
+    '2x2': string,                 // Path to 2x2 frame PNG (2624×3904px)
+    '4x1': string,                 // Path to 4x1 frame PNG (5168×1984px)
+    '1x4': string,                 // Path to 1x4 frame PNG (1344×7744px)
+    '3x3': string,                 // Path to 3x3 frame PNG (3904×5824px)
+    '2x3': string,                 // Path to 2x3 frame PNG (2624×5824px)
+  },
+  preview: string,                 // Preview description
+  previewStyle?: object,           // CSS style for editor preview (optional)
 }
+
+/**
+ * Frame Image Requirements:
+ * - PNG format with transparency
+ * - Transparent center area where photos show through
+ * - Fixed dimensions matching layout output size
+ * - Each photo cell is 1280×1920px with 16px gaps and 32px padding
+ * - Frames stored in /public/frames/{frame-id}/{layout-id}.png
+ */
 ```
 
 #### 4.1.4 workflowStore
@@ -509,27 +506,21 @@ COPY.camera = {
 
 ---
 
-### 5.3 Photo Editor (Filters, Stickers, Frames)
+### 5.3 Photo Editor (Filters, Frames)
 
 #### User Stories
 - **US-009**: As a user, I want to apply filters to enhance my photos
-- **US-010**: As a user, I want to add stickers to make my photos fun
-- **US-011**: As a user, I want to drag and resize stickers
-- **US-012**: As a user, I want to add decorative frames around the final image
-- **US-013**: As a user, I want to preview changes before finalizing
+- **US-010**: As a user, I want to add decorative frames around the final image
+- **US-011**: As a user, I want to preview changes before finalizing
 
 #### Acceptance Criteria
-- [x] Filter panel displays 8 filter options with previews
+- [x] Filter panel displays 6 filter options with previews
 - [x] Clicking a filter applies it to all photos instantly
-- [x] Sticker panel displays 20 sticker options in 3 categories
-- [x] Clicking a sticker adds it to the center of the canvas
-- [x] Stickers can be dragged to reposition
-- [x] Stickers can be scaled with control buttons
-- [x] Stickers can be rotated with control buttons
-- [x] Clicking outside a sticker deselects it
-- [x] Delete button appears when sticker is selected
-- [x] Frame panel displays 7 frame options
-- [x] Frame preview updates in real-time
+- [x] Frame panel displays frame options
+- [x] Frame preview shows CSS approximation in editor
+- [x] Frame overlay is applied during final export
+- [x] Each layout uses layout-specific frame image (PNG)
+- [x] Frame images have transparent centers for photos to show through
 
 #### Filter Specifications
 
@@ -927,70 +918,114 @@ export const applyFilterToCanvas = (ctx, filterString, image, x, y, width, heigh
 };
 ```
 
-#### 6.1.2 drawSticker
+#### 6.1.2 compositeImage
 
 ```javascript
 /**
- * Draws a sticker on canvas with transformations
+ * Composites photos, filter, and frame into final image
  *
- * @param {CanvasRenderingContext2D} ctx - Canvas 2D context
- * @param {Sticker} sticker - Sticker object with position, scale, rotation
+ * @param {Object} options - Composition options
+ * @param {Array<string>} options.photos - Array of photo data URLs
+ * @param {Object} options.layout - Layout configuration
+ * @param {string} options.filterId - Filter ID
+ * @param {string} options.frameId - Frame ID
+ * @param {number} options.quality - JPEG quality (0-1), default 0.95
+ * @returns {Promise<string>} Data URL of composed image
  */
-export const drawSticker = (ctx, sticker) => {
-  const img = new Image();
-  img.src = sticker.src;
+export const compositeImage = async ({ photos, layout, filterId, frameId, quality = 0.95 }) => {
+  // Standard dimensions (matches webcam resolution)
+  const CELL_WIDTH = 1280;
+  const CELL_HEIGHT = 1920;
+  const CELL_GAP = 16;
+  const PADDING = 32;
 
-  img.onload = () => {
-    ctx.save();
+  // Calculate canvas dimensions
+  const width = layout.cols * CELL_WIDTH + (layout.cols - 1) * CELL_GAP + PADDING * 2;
+  const height = layout.rows * CELL_HEIGHT + (layout.rows - 1) * CELL_GAP + PADDING * 2;
 
-    // Move to sticker position
-    ctx.translate(sticker.x, sticker.y);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = width;
+  canvas.height = height;
 
-    // Apply rotation
-    ctx.rotate((sticker.rotation * Math.PI) / 180);
+  // 1. Draw white background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, width, height);
 
-    // Apply scale
-    ctx.scale(sticker.scale, sticker.scale);
+  // 2. Draw photos with filter
+  await Promise.all(photos.map((photoUrl, index) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const row = Math.floor(index / layout.cols);
+        const col = index % layout.cols;
+        const x = PADDING + col * (CELL_WIDTH + CELL_GAP);
+        const y = PADDING + row * (CELL_HEIGHT + CELL_GAP);
 
-    // Draw centered at origin
-    ctx.drawImage(
-      img,
-      -img.width / 2,
-      -img.height / 2,
-      img.width,
-      img.height
-    );
+        // Apply filter and draw with object-fit: cover
+        ctx.save();
+        ctx.filter = getFilterCSS(filterId);
+        // ... object-fit: cover logic ...
+        ctx.restore();
+        resolve();
+      };
+      img.src = photoUrl;
+    });
+  }));
 
-    ctx.restore();
-  };
+  // 3. Draw frame overlay (if exists)
+  const framePath = getFrameImagePath(frameId, layout.id);
+  if (framePath) {
+    const frameImg = new Image();
+    await new Promise((resolve) => {
+      frameImg.onload = () => {
+        ctx.drawImage(frameImg, 0, 0, width, height);
+        resolve();
+      };
+      frameImg.src = framePath;
+    });
+  }
+
+  // 4. Export as JPEG
+  return canvas.toDataURL('image/jpeg', quality);
 };
 ```
 
-#### 6.1.3 drawFrame
+#### 6.1.3 getFrameImagePath
 
 ```javascript
 /**
- * Draws decorative frame on canvas
+ * Gets layout-specific frame image path
  *
- * @param {CanvasRenderingContext2D} ctx - Canvas 2D context
- * @param {Frame} frame - Frame object
- * @param {number} canvasWidth - Canvas width
- * @param {number} canvasHeight - Canvas height
+ * @param {string} frameId - Frame identifier
+ * @param {string} layoutId - Layout identifier (e.g., '2x2', '4x1')
+ * @returns {string|null} Path to frame image or null
  */
-export const drawFrame = (ctx, frame, canvasWidth, canvasHeight) => {
-  const frameImg = new Image();
-  frameImg.src = frame.src;
-
-  frameImg.onload = () => {
-    if (frame.type === 'border') {
-      // Draw border around edge
-      drawFrameBorder(ctx, frameImg, canvasWidth, canvasHeight);
-    } else if (frame.type === 'overlay') {
-      // Draw overlay on top
-      ctx.drawImage(frameImg, 0, 0, canvasWidth, canvasHeight);
-    }
-  };
+export const getFrameImagePath = (frameId, layoutId) => {
+  const frame = getFrameById(frameId);
+  return frame?.layouts?.[layoutId] || null;
 };
+```
+
+#### 6.1.4 Canvas Dimension Specifications
+
+**Fixed Dimensions (matching webcam resolution)**:
+- Each photo cell: **1280 × 1920 pixels** (2:3 ratio from webcam)
+- Cell gap: **16 pixels**
+- Canvas padding: **32 pixels**
+
+**Layout Output Sizes**:
+| Layout | Dimensions (px) | Formula |
+|--------|-----------------|---------|
+| 2×2 | 2624 × 3904 | cols×1280 + (cols-1)×16 + 64 |
+| 4×1 | 5168 × 1984 | 4×1280 + 3×16 + 64 |
+| 1×4 | 1344 × 7744 | 1×1280 + 0×16 + 64 |
+| 3×3 | 3904 × 5824 | 3×1280 + 2×16 + 64 |
+| 2×3 | 2624 × 5824 | 2×1280 + 1×16 + 64 |
+
+**Object-fit: Cover Scaling**:
+Photos are scaled to fill the cell while maintaining aspect ratio, with centered cropping to prevent distortion.
+
 ```
 
 ---

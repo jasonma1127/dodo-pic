@@ -13,13 +13,12 @@ Create instant photo collages with filters, stickers, and frames—all in your b
 
 ## ✨ Features
 
-- **3 Photo Layouts**: Classic 2x2, vertical strip, and 3x3 grid
+- **5 Photo Layouts**: Classic 2x2, horizontal strip (4x1), vertical strip (1x4), 3x3 grid, and 2x3 grid
 - **Webcam Capture**: Take multiple photos with countdown timer
 - **Retake Functionality**: Replace individual photos without starting over
 - **Creative Filters**: Black & White, Vintage, Vivid, Cool/Warm tones
-- **Sticker Decorations**: Drag, scale, and rotate fun stickers
-- **Decorative Frames**: Add stylish borders to your collage
-- **Instant Export**: Download or share your creation
+- **Decorative Frames**: PNG image overlays with layout-specific designs
+- **Instant Export**: Download high-resolution JPEG or share your creation
 - **Modern UI**: macOS/iOS-inspired design with smooth animations
 - **100% Client-Side**: No server needed, photos never leave your device
 
@@ -63,7 +62,7 @@ DodoPic follows a simple 4-step workflow:
 ```
 
 ### Step 1: Choose Your Layout
-Select from 3 photo layouts (2x2, 1x4, 3x3). Each layout determines how many photos you'll capture.
+Select from 5 photo layouts (2x2, 4x1, 1x4, 3x3, 2x3). Each layout determines how many photos you'll capture.
 
 ### Step 2: Capture Photos
 - Click "Start Camera" to enable your webcam
@@ -73,12 +72,11 @@ Select from 3 photo layouts (2x2, 1x4, 3x3). Each layout determines how many pho
 
 ### Step 3: Edit & Decorate
 - **Filters**: Apply one of 6 preset filters to all photos
-- **Stickers**: Add, drag, resize, and rotate fun decorations
-- **Frames**: Choose a decorative border for the final image
+- **Frames**: Choose a decorative PNG overlay for the final image (layout-specific designs)
 
 ### Step 4: Export
 - Preview your final creation
-- Download as PNG (1200x1800px+)
+- Download as high-resolution JPEG (dimensions vary by layout, e.g., 2x2: 2624×3904px)
 - Share via Web Share API (mobile) or clipboard (desktop)
 - Start over to create another!
 
@@ -243,18 +241,19 @@ docs: Update API specifications in SPEC.md
 
 ## 📝 Roadmap
 
-### Current Version: 2.0.0
-- ✅ 3 photo layouts
+### Current Version: 2.1.0
+- ✅ 5 photo layouts (2x2, 4x1, 1x4, 3x3, 2x3)
 - ✅ Webcam capture with countdown
 - ✅ Retake individual photos
 - ✅ 6 filter presets
-- ✅ Sticker decorations
-- ✅ Decorative frames
+- ✅ PNG frame overlays (layout-specific)
+- ✅ High-resolution JPEG export
 - ✅ Download & share
 
 ### Future (V3.0)
 - [ ] Multi-language support (i18n)
 - [ ] Custom text overlay
+- [ ] Sticker decorations (drag, scale, rotate)
 - [ ] AI-powered filters (beauty mode)
 - [ ] Cloud storage (optional)
 - [ ] Advanced editing (crop, brightness/contrast)
@@ -274,7 +273,9 @@ See [SPEC.md - Appendix A](./SPEC.md#appendix-a-future-enhancements-v2) for comp
 
 ### Low Image Quality
 - Check `canvas.toDataURL()` quality parameter in `export/utils/imageComposite.js`
-- Default is `1.0` (highest quality PNG)
+- Default is `0.95` (high quality JPEG)
+- All photos use fixed dimensions (1280×1920 per cell) matching webcam resolution
+- Object-fit: cover scaling prevents distortion
 
 ### Share Not Working
 - **Web Share API** is only available on:
