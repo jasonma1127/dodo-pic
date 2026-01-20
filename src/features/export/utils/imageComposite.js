@@ -137,7 +137,6 @@ export const compositeImage = async ({
 
         if (framePath) {
           const frameImg = new Image();
-          frameImg.crossOrigin = 'anonymous';
 
           frameImg.onload = () => {
             // Draw frame as overlay on top of photos (frame will be exact canvas size)

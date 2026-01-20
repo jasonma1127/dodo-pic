@@ -31,9 +31,6 @@ export const FRAMES = [
     preview: 'Clean, no border',
     previewStyle: {}, // No style for preview
   },
-  // TODO: Add actual frame images to /public/frames/
-  // Example frame configurations:
-  /*
   {
     id: 'polaroid',
     name: 'Polaroid',
@@ -50,24 +47,6 @@ export const FRAMES = [
       boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
     },
   },
-  {
-    id: 'film-strip',
-    name: 'Film Strip',
-    layouts: {
-      '2x2': '/frames/film-strip/2x2.png',
-      '4x1': '/frames/film-strip/4x1.png',
-      '1x4': '/frames/film-strip/1x4.png',
-      '3x3': '/frames/film-strip/3x3.png',
-      '2x3': '/frames/film-strip/2x3.png',
-    },
-    preview: 'Vintage film look',
-    previewStyle: {
-      border: '4px solid #2a2a2a',
-      borderTop: '24px solid #2a2a2a',
-      borderBottom: '24px solid #2a2a2a',
-    },
-  },
-  */
 ];
 
 /**

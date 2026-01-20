@@ -64,7 +64,7 @@ const FrameItem = ({ frame, isSelected, previewPhoto, onSelect }) => {
       <div className="mb-3">
         <div className="aspect-[3/4] rounded-lg overflow-hidden bg-gray-100">
           {previewPhoto ? (
-            <div className="w-full h-full" style={frame.style}>
+            <div className="w-full h-full" style={frame.previewStyle}>
               <img
                 src={previewPhoto}
                 alt={frame.name}
@@ -74,7 +74,7 @@ const FrameItem = ({ frame, isSelected, previewPhoto, onSelect }) => {
           ) : (
             <div
               className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400"
-              style={frame.style}
+              style={frame.previewStyle}
             />
           )}
         </div>
