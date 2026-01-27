@@ -5,17 +5,58 @@
  * Features:
  * - Displays photo grid matching selected layout
  * - Applies current filter to all photos
- * - Shows frame preview around entire composition
+ * - Shows live frame preview with actual frame images
  */
 
+import { useState, useEffect } from 'react';
 import { usePhotoStore, useLayoutStore, useEditorStore } from '@/store';
-import { getFilterCSS } from '../constants/filters';
-import { getFrameStyle } from '../constants/frames';
+import { compositeImage } from '@/features/export/utils/imageComposite';
 
 const EditorCanvas = () => {
   const { photos } = usePhotoStore();
   const { selectedLayout } = useLayoutStore();
   const { currentFilter, selectedFrame } = useEditorStore();
+  const [previewImage, setPreviewImage] = useState(null);
+  const [isComposing, setIsComposing] = useState(false);
+
+  // Compose preview whenever filter or frame changes
+  useEffect(() => {
+    let isMounted = true;
+
+    const composePreview = async () => {
+      if (!selectedLayout || !photos || photos.length === 0) {
+        return;
+      }
+
+      try {
+        setIsComposing(true);
+
+        const dataUrl = await compositeImage({
+          photos,
+          layout: selectedLayout,
+          filterId: currentFilter,
+          frameId: selectedFrame,
+          quality: 0.7, // Lower quality for faster preview
+        });
+
+        if (isMounted) {
+          setPreviewImage(dataUrl);
+        }
+      } catch (error) {
+        console.error('Preview composition failed:', error);
+      } finally {
+        if (isMounted) {
+          setIsComposing(false);
+        }
+      }
+    };
+
+    composePreview();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [photos, selectedLayout, currentFilter, selectedFrame]);
 
   if (!selectedLayout || photos.length === 0) {
     return (
@@ -25,19 +66,7 @@ const EditorCanvas = () => {
     );
   }
 
-  const filterCSS = getFilterCSS(currentFilter);
-  const frameStyle = getFrameStyle(selectedFrame);
-
-  // Calculate grid layout
-  const gridStyle = {
-    display: 'grid',
-    gridTemplateRows: `repeat(${selectedLayout.rows}, 1fr)`,
-    gridTemplateColumns: `repeat(${selectedLayout.cols}, 1fr)`,
-    gap: '8px',
-    ...frameStyle,
-  };
-
-  // Calculate aspect ratio for the canvas container (same as PhotoGrid)
+  // Calculate aspect ratio for the canvas container
   const canvasAspectRatio = `${selectedLayout.cols * 3} / ${selectedLayout.rows * 4}`;
 
   return (
@@ -47,25 +76,24 @@ const EditorCanvas = () => {
         style={{ aspectRatio: canvasAspectRatio }}
       >
         {/* Main Canvas */}
-        <div className="relative w-full h-full bg-white rounded-2xl shadow-macos overflow-hidden">
-        {/* Photo Grid */}
-        <div style={gridStyle} className="w-full h-full p-2">
-          {photos.map((photo, index) => (
-            <div
-              key={index}
-              className="relative overflow-hidden rounded-lg bg-gray-100"
-            >
-              <img
-                src={photo}
-                alt={`Photo ${index + 1}`}
-                className="w-full h-full object-cover"
-                style={{ filter: filterCSS }}
-              />
+        <div className="relative w-full h-full">
+          {isComposing && !previewImage ? (
+            <div className="w-full h-full flex items-center justify-center bg-white rounded-2xl shadow-macos">
+              <p className="text-gray-500">Loading preview...</p>
             </div>
-          ))}
+          ) : previewImage ? (
+            <img
+              src={previewImage}
+              alt="Preview"
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-white rounded-2xl shadow-macos">
+              <p className="text-gray-500">No preview available</p>
+            </div>
+          )}
         </div>
       </div>
-    </div>
     </div>
   );
 };

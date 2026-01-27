@@ -170,7 +170,7 @@ const ExportPreview = () => {
               className="h-full"
               style={{ aspectRatio: `${selectedLayout.cols * 3} / ${selectedLayout.rows * 4}` }}
             >
-              <div className="relative w-full h-full bg-white rounded-2xl shadow-macos overflow-hidden">
+              <div className="relative w-full h-full">
                 {composedImage ? (
                   <img
                     src={composedImage}
@@ -178,7 +178,7 @@ const ExportPreview = () => {
                     className="w-full h-full object-contain"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                  <div className="w-full h-full flex items-center justify-center bg-white rounded-2xl shadow-macos">
                     <p className="text-gray-500">{COPY.export.error}</p>
                   </div>
                 )}
