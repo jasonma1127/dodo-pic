@@ -35,17 +35,23 @@ const ExportPreview = () => {
   const { currentFilter, selectedFrame } = useEditorStore();
   const { resetWorkflow } = useWorkflowStore();
 
-  // Compose image on mount
+  // Compose image whenever dependencies change
   useEffect(() => {
+    let isMounted = true;
+
     const compose = async () => {
       // Check if we have the required data
       if (!selectedLayout || !photos || photos.length === 0) {
-        setIsComposing(false);
+        if (isMounted) {
+          setIsComposing(false);
+        }
         return;
       }
 
       try {
-        setIsComposing(true);
+        if (isMounted) {
+          setIsComposing(true);
+        }
 
         const dataUrl = await compositeImage({
           photos,
@@ -55,16 +61,24 @@ const ExportPreview = () => {
           quality: 0.95,
         });
 
-        setComposedImage(dataUrl);
-        setFileSize(getFileSize(dataUrl));
+        if (isMounted) {
+          setComposedImage(dataUrl);
+          setFileSize(getFileSize(dataUrl));
+        }
       } catch (error) {
         console.error('Composition failed:', error);
       } finally {
-        setIsComposing(false);
+        if (isMounted) {
+          setIsComposing(false);
+        }
       }
     };
 
     compose();
+
+    return () => {
+      isMounted = false;
+    };
   }, [photos, selectedLayout, currentFilter, selectedFrame]);
 
   const handleDownload = () => {

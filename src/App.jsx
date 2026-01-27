@@ -4,7 +4,6 @@
  */
 
 import { useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
 import { useWorkflowStore } from '@/store';
 
 // Feature components
@@ -29,14 +28,12 @@ function App() {
       {/* Workflow Step Indicator */}
       <WorkflowStepper />
 
-      {/* Main Content - Animated page transitions */}
+      {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <AnimatePresence mode="wait">
-          {currentStep === 'layout' && <LayoutSelector key="layout" />}
-          {currentStep === 'camera' && <CameraView key="camera" />}
-          {currentStep === 'editor' && <EditorView key="editor" />}
-          {currentStep === 'export' && <ExportPreview key="export" />}
-        </AnimatePresence>
+        {currentStep === 'layout' && <LayoutSelector />}
+        {currentStep === 'camera' && <CameraView />}
+        {currentStep === 'editor' && <EditorView />}
+        {currentStep === 'export' && <ExportPreview />}
       </div>
 
       {/* Bottom Navigation */}
