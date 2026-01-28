@@ -62,7 +62,7 @@ const FrameItem = ({ frame, isSelected, previewPhoto, onSelect }) => {
     >
       {/* Frame Preview */}
       <div className="mb-3">
-        <div className="aspect-[3/4] rounded-lg overflow-hidden bg-gray-100">
+        <div className="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100">
           {previewPhoto ? (
             <div className="w-full h-full" style={frame.previewStyle}>
               <img

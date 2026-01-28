@@ -22,8 +22,8 @@ const PhotoGrid = ({ onRetake }) => {
     photo: photos[index] || null,
   }));
 
-  // Calculate grid aspect ratio based on layout and cell aspect ratio (3:4)
-  const gridAspectRatio = `${selectedLayout.cols * 3} / ${selectedLayout.rows * 4}`;
+  // Calculate grid aspect ratio based on layout and cell aspect ratio (4:3 landscape)
+  const gridAspectRatio = `${selectedLayout.cols * 4} / ${selectedLayout.rows * 3}`;
 
   return (
     <div className="w-full h-full flex items-center justify-center">

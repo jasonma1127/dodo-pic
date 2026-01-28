@@ -7,26 +7,28 @@ import { getFilterCSS } from '@/features/editor/constants/filters';
 import { getFrameImagePath } from '@/features/editor/constants/frames';
 
 // Standard photo booth dimensions (like real photo booth machines)
-// Using webcam's actual resolution: 1280 x 1920 (2:3 ratio from camera)
-const STANDARD_CELL_WIDTH = 1280;  // Each photo cell width (matches webcam)
-const STANDARD_CELL_HEIGHT = 1920; // Each photo cell height (matches webcam)
+// Using 4:3 aspect ratio (landscape)
+const STANDARD_CELL_WIDTH = 1920;  // Each photo cell width (4:3 landscape)
+const STANDARD_CELL_HEIGHT = 1440; // Each photo cell height (4:3 landscape)
 const CELL_GAP = 16;                // Gap between photos
 const CANVAS_PADDING = 32;          // Padding around the entire grid
+const DECORATION_TOP = 300;         // Top decoration area for logo/branding
+const DECORATION_BOTTOM = 300;      // Bottom decoration area for logo/branding
 
 /**
  * Calculate standard canvas dimensions for a layout
  * This ensures frame images can be designed with fixed dimensions
  *
- * Layout output sizes (based on 1280x1920 cells):
- * - 2x2: 2624 x 3904 pixels
- * - 4x1: 5168 x 1984 pixels
- * - 1x4: 1344 x 7744 pixels
- * - 3x3: 3904 x 5824 pixels
- * - 2x3: 2624 x 5824 pixels
+ * Layout output sizes (with decoration areas, based on 1920x1440 cells):
+ * - 2x2: 3904 x 3520 pixels (2920 photo area + 600 decoration)
+ * - 4x1: 7728 x 2104 pixels (1504 photo area + 600 decoration)
+ * - 1x4: 1984 x 6368 pixels (5768 photo area + 600 decoration)
+ * - 3x3: 5840 x 4960 pixels (4360 photo area + 600 decoration)
+ * - 2x3: 3904 x 4960 pixels (4360 photo area + 600 decoration)
  */
 const getCanvasDimensions = (layout) => {
   const width = layout.cols * STANDARD_CELL_WIDTH + (layout.cols - 1) * CELL_GAP + CANVAS_PADDING * 2;
-  const height = layout.rows * STANDARD_CELL_HEIGHT + (layout.rows - 1) * CELL_GAP + CANVAS_PADDING * 2;
+  const height = layout.rows * STANDARD_CELL_HEIGHT + (layout.rows - 1) * CELL_GAP + CANVAS_PADDING * 2 + DECORATION_TOP + DECORATION_BOTTOM;
   return { width, height };
 };
 
@@ -74,8 +76,9 @@ export const compositeImage = async ({
             const col = index % layout.cols;
 
             // Calculate position using standard dimensions
+            // Add DECORATION_TOP offset to Y position for top decoration area
             const x = CANVAS_PADDING + col * (STANDARD_CELL_WIDTH + CELL_GAP);
-            const y = CANVAS_PADDING + row * (STANDARD_CELL_HEIGHT + CELL_GAP);
+            const y = DECORATION_TOP + CANVAS_PADDING + row * (STANDARD_CELL_HEIGHT + CELL_GAP);
 
             // Save context
             ctx.save();

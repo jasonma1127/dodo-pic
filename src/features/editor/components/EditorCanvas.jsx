@@ -66,8 +66,8 @@ const EditorCanvas = () => {
     );
   }
 
-  // Calculate aspect ratio for the canvas container
-  const canvasAspectRatio = `${selectedLayout.cols * 3} / ${selectedLayout.rows * 4}`;
+  // Calculate aspect ratio for the canvas container (4:3 landscape)
+  const canvasAspectRatio = `${selectedLayout.cols * 4} / ${selectedLayout.rows * 3}`;
 
   return (
     <div className="w-full h-full flex items-center justify-center">

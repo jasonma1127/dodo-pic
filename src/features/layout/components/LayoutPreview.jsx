@@ -14,7 +14,7 @@ const LayoutPreview = ({ layout, isSelected, onSelect }) => {
       className="flex flex-col items-center"
     >
       {/* Layout Grid Preview */}
-      <div className="w-full mb-4 bg-ios-gray-100 rounded-lg p-4 aspect-[3/4]">
+      <div className="w-full mb-4 bg-ios-gray-100 rounded-lg p-4 aspect-[4/3]">
         <div
           className="grid gap-1 h-full"
           style={{

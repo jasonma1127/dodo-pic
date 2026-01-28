@@ -13,14 +13,14 @@
  * Each frame needs separate images for different layouts (2x2, 4x1, 1x4, 3x3, 2x3, etc.)
  * Images should have transparent center area where photos will show through
  *
- * IMPORTANT: Frame image dimensions (fixed sizes, matches webcam resolution):
- * - 2x2: 2624 x 3904 pixels
- * - 4x1: 5168 x 1984 pixels
- * - 1x4: 1344 x 7744 pixels
- * - 3x3: 3904 x 5824 pixels
- * - 2x3: 2624 x 5824 pixels
+ * IMPORTANT: Frame image dimensions (fixed sizes, 4:3 landscape):
+ * - 2x2: 3920 x 3560 pixels
+ * - 4x1: 7728 x 2104 pixels
+ * - 1x4: 1984 x 6368 pixels
+ * - 3x3: 5840 x 4960 pixels
+ * - 2x3: 3920 x 4960 pixels
  *
- * Each photo cell is 1280x1920 pixels (webcam resolution) with 16px gaps and 32px padding
+ * Each photo cell is 1920x1440 pixels (4:3 landscape) with 16px gaps, 32px padding, and 300px top/bottom decoration
  */
 
 export const FRAMES = [

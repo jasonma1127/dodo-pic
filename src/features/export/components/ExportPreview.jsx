@@ -168,7 +168,7 @@ const ExportPreview = () => {
           <div className="w-full h-full flex items-center justify-center">
             <div
               className="h-full"
-              style={{ aspectRatio: `${selectedLayout.cols * 3} / ${selectedLayout.rows * 4}` }}
+              style={{ aspectRatio: `${selectedLayout.cols * 4} / ${selectedLayout.rows * 3}` }}
             >
               <div className="relative w-full h-full">
                 {composedImage ? (

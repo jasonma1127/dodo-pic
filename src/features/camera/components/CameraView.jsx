@@ -63,7 +63,7 @@ const CameraView = () => {
       <div className="flex-1 flex gap-4 px-4 pt-4 pb-32 min-h-0">
         {/* Left Frame: Camera Section */}
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="relative bg-black rounded-2xl overflow-hidden shadow-macos-lg aspect-[3/4] w-full max-w-sm flex-shrink-0">
+          <div className="relative bg-black rounded-2xl overflow-hidden shadow-macos-lg aspect-[4/3] w-full max-w-2xl flex-shrink-0">
             {isCameraOn ? (
               <>
                 <Webcam
@@ -71,8 +71,8 @@ const CameraView = () => {
                   audio={false}
                   screenshotFormat="image/png"
                   videoConstraints={{
-                    width: 1280,
-                    height: 1920,
+                    width: 1920,
+                    height: 1440,
                     facingMode: 'user',
                   }}
                   onUserMediaError={handleCameraError}
