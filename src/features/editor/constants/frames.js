@@ -10,17 +10,19 @@
  * - previewStyle: CSS style for preview in editor (optional)
  *
  * Frame images should be placed in /public/frames/{frame-id}/
- * Each frame needs separate images for different layouts (2x2, 4x1, 1x4, 3x3, 2x3, etc.)
+ * Each frame needs separate images for different layouts (2x2, 1x4, 3x3)
  * Images should have transparent center area where photos will show through
  *
- * IMPORTANT: Frame image dimensions (fixed sizes, 4:3 landscape):
- * - 2x2: 3920 x 3560 pixels
- * - 4x1: 7728 x 2104 pixels
- * - 1x4: 1984 x 6368 pixels
- * - 3x3: 5840 x 4960 pixels
- * - 2x3: 3920 x 4960 pixels
+ * IMPORTANT: Frame image dimensions (4:3 landscape photos):
+ * Each photo cell: 1920x1440 pixels (4:3 landscape)
+ * Cell gap: 64px between photos
  *
- * Each photo cell is 1920x1440 pixels (4:3 landscape) with 16px gaps, 32px padding, and 300px top/bottom decoration
+ * Frame sizes by layout:
+ * - 2x2: 4168 x 4120 pixels (cellGap: 64, sideBorder: 60, topBorder: 1000, bottomBorder: 120)
+ * - 1x4: 2040 x 7480 pixels (cellGap: 64, sideBorder: 60, topBorder: 120, bottomBorder: 1000)
+ * - 3x3: 6088 x 6880 pixels (cellGap: 64, sideBorder: 60, topBorder: 1200, bottomBorder: 1200)
+ *
+ * Frame generation: Use frame-generator.html with matching parameters
  */
 
 export const FRAMES = [
