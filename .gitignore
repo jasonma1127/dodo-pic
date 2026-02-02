@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Frame generator tool (external tool, not part of the app)
+frame-generator.html

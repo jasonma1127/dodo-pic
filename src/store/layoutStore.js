@@ -17,7 +17,7 @@ import { devtools } from 'zustand/middleware';
  * @property {number} rows - Number of rows in grid
  * @property {number} cols - Number of columns in grid
  * @property {number} total - Total number of photos (rows × cols)
- * @property {string} previewImage - Path to preview image
+ * @property {string} description - Layout description
  */
 
 export const useLayoutStore = create(

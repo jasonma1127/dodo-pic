@@ -10,7 +10,6 @@ export const LAYOUTS = [
     rows: 2,
     cols: 2,
     total: 4,
-    previewImage: '/assets/layout-previews/2x2.jpg',
     description: 'Classic photo booth style with 4 photos',
   },
   {
@@ -19,7 +18,6 @@ export const LAYOUTS = [
     rows: 4,
     cols: 1,
     total: 4,
-    previewImage: '/assets/layout-previews/1x4.jpg',
     description: 'Vertical strip layout',
   },
   {
@@ -28,7 +26,6 @@ export const LAYOUTS = [
     rows: 3,
     cols: 3,
     total: 9,
-    previewImage: '/assets/layout-previews/3x3.jpg',
     description: 'Nine photos in a grid',
   },
 ];
