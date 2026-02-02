@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DodoPic Frame Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input[type="number"],
+        input[type="color"] {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="color"] {
+            height: 45px;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .preview-area {
+            display: none;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .preview-area.active {
+            display: block;
+        }
+
+        .preview-area h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .preview-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .preview-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: repeating-conic-gradient(#ddd 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+        }
+
+        .preview-item .dimensions {
+            color: #666;
+            font-size: 12px;
+            margin: 8px 0;
+        }
+
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 DodoPic Frame Generator</h1>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Frame Color</label>
+                <input type="color" id="frameColor" value="#f5f5dc">
+            </div>
+
+            <div class="control-group">
+                <label>Cell Gap (照片間距)</label>
+                <input type="number" id="cellGap" value="32" min="0" max="100" step="4">
+            </div>
+
+            <div class="control-group">
+                <label>Side Border (左右邊框)</label>
+                <input type="number" id="sideBorder" value="60" min="0" max="300" step="10">
+            </div>
+
+            <div class="control-group">
+                <label>Top Border (上邊框)</label>
+                <input type="number" id="topBorder" value="60" min="0" max="300" step="10">
+            </div>
+
+            <div class="control-group">
+                <label>Bottom Border (下邊框)</label>
+                <input type="number" id="bottomBorder" value="120" min="0" max="300" step="10">
+            </div>
+
+            <div class="control-group">
+                <label>Corner Radius (圓角)</label>
+                <input type="number" id="cornerRadius" value="20" min="0" max="100" step="4">
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="generateAllFrames()">🎨 Generate Frames</button>
+            <button class="btn-secondary" onclick="resetSettings()">🔄 Reset</button>
+        </div>
+
+        <div class="preview-area" id="previewArea">
+            <h3>✅ Frames Generated!</h3>
+            <div class="preview-grid" id="previewGrid"></div>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // Photo specifications (4:3 landscape)
+        const CELL_WIDTH = 1920;
+        const CELL_HEIGHT = 1440;
+
+        // Layout configurations
+        const LAYOUTS = [
+            { id: '2x2', name: '2x2', rows: 2, cols: 2 },
+            { id: '1x4', name: '1x4', rows: 4, cols: 1 },
+            { id: '3x3', name: '3x3', rows: 3, cols: 3 }
+        ];
+
+        function generateFrame(layout, settings) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Calculate photo grid dimensions
+            const gridWidth = layout.cols * CELL_WIDTH + (layout.cols - 1) * settings.cellGap;
+            const gridHeight = layout.rows * CELL_HEIGHT + (layout.rows - 1) * settings.cellGap;
+
+            // Canvas size = grid + borders (no extra padding)
+            canvas.width = gridWidth + settings.sideBorder * 2;
+            canvas.height = gridHeight + settings.topBorder + settings.bottomBorder;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the frame (entire canvas)
+            ctx.fillStyle = settings.frameColor;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, canvas.width, canvas.height, settings.cornerRadius);
+            ctx.fill();
+
+            // Cut out transparent areas for photos (keep 4:3 aspect ratio)
+            ctx.globalCompositeOperation = 'destination-out';
+
+            for (let row = 0; row < layout.rows; row++) {
+                for (let col = 0; col < layout.cols; col++) {
+                    // Photo position (relative to frame borders)
+                    // Photos are full CELL_WIDTH x CELL_HEIGHT (1920x1440, 4:3 ratio)
+                    const photoX = settings.sideBorder + col * (CELL_WIDTH + settings.cellGap);
+                    const photoY = settings.topBorder + row * (CELL_HEIGHT + settings.cellGap);
+
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(photoX, photoY, CELL_WIDTH, CELL_HEIGHT);
+                }
+            }
+
+            ctx.globalCompositeOperation = 'source-over';
+
+            return canvas.toDataURL('image/png');
+        }
+
+        function generateAllFrames() {
+            const settings = {
+                frameColor: document.getElementById('frameColor').value,
+                cellGap: parseInt(document.getElementById('cellGap').value),
+                sideBorder: parseInt(document.getElementById('sideBorder').value),
+                topBorder: parseInt(document.getElementById('topBorder').value),
+                bottomBorder: parseInt(document.getElementById('bottomBorder').value),
+                cornerRadius: parseInt(document.getElementById('cornerRadius').value)
+            };
+
+            const previewArea = document.getElementById('previewArea');
+            const previewGrid = document.getElementById('previewGrid');
+
+            previewGrid.innerHTML = '';
+
+            LAYOUTS.forEach(layout => {
+                const dataUrl = generateFrame(layout, settings);
+
+                const gridWidth = layout.cols * CELL_WIDTH + (layout.cols - 1) * settings.cellGap;
+                const gridHeight = layout.rows * CELL_HEIGHT + (layout.rows - 1) * settings.cellGap;
+                const width = gridWidth + settings.sideBorder * 2;
+                const height = gridHeight + settings.topBorder + settings.bottomBorder;
+
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.innerHTML = `
+                    <h4>${layout.name}</h4>
+                    <img src="${dataUrl}" alt="${layout.name}">
+                    <p class="dimensions">${width} × ${height} px</p>
+                    <button class="btn-primary" style="width: 100%; margin-top: 10px;" onclick="downloadFrame('${dataUrl}', '${layout.id}')">
+                        ⬇️ Download ${layout.id}.png
+                    </button>
+                `;
+                previewGrid.appendChild(previewItem);
+            });
+
+            previewArea.classList.add('active');
+        }
+
+        function downloadFrame(dataUrl, layoutId) {
+            const link = document.createElement('a');
+            link.download = `${layoutId}.png`;
+            link.href = dataUrl;
+            link.click();
+        }
+
+        function resetSettings() {
+            document.getElementById('frameColor').value = '#f5f5dc';
+            document.getElementById('cellGap').value = '32';
+            document.getElementById('sideBorder').value = '60';
+            document.getElementById('topBorder').value = '60';
+            document.getElementById('bottomBorder').value = '120';
+            document.getElementById('cornerRadius').value = '20';
+        }
+
+        console.log('DodoPic Frame Generator Ready!');
+    </script>
+</body>
+</html>
