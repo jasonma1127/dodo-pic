@@ -1,7 +1,7 @@
 # DodoPic - Software Design Specification
 
-**Version:** 2.1.0
-**Last Updated:** 2026-01-16
+**Version:** 2.2.0
+**Last Updated:** 2026-01-28
 **Status:** In Development
 
 ---
@@ -23,7 +23,7 @@
 ## 1. Project Overview
 
 ### 1.1 Product Vision
-DodoPic is a modern, web-based photo booth application that brings the joy of instant photo stickers to the browser. Users can capture multiple photos, apply creative filters and decorations, and instantly download or share their creations—all without requiring any backend infrastructure.
+DodoPic is a modern, web-based photo booth application that brings the joy of instant photo frames to the browser. Users can capture multiple photos, apply creative filters and frames, and instantly download or share their creations—all without requiring any backend infrastructure.
 
 ### 1.2 Target Users
 - **Primary**: Social media users aged 18-35 who enjoy creating and sharing visual content
@@ -31,7 +31,7 @@ DodoPic is a modern, web-based photo booth application that brings the joy of in
 - **Tertiary**: Content creators seeking quick photo collage tools
 
 ### 1.3 Key Features
-- **5 Layout Options**: Classic 2x2, horizontal strip (4x1), vertical strip (1x4), 3x3 grid, and 2x3 grid
+- **3 Layout Options**: Classic 2x2, vertical strip (1x4), and 3x3 grid
 - **Complete Workflow**: Layout selection → Photo capture → Editing → Export/Share
 - **Photo Editing**:
   - 6+ filter presets (B&W, Vintage, Vivid, Cool/Warm tones)
@@ -39,11 +39,11 @@ DodoPic is a modern, web-based photo booth application that brings the joy of in
 - **Retake Functionality**: Replace individual photos without restarting
 - **Export Options**: Download high-resolution JPEG or share via Web Share API
 - **Modern UI**: macOS/iOS-inspired design with smooth animations
-- **Fixed Dimensions**: All photos use consistent 1280×1920 resolution (matches webcam)
+- **Fixed Dimensions**: All photos use consistent 1920×1440 resolution (4:3 landscape aspect ratio)
 
 ### 1.4 Success Metrics
 - **Performance**: Load time < 3s, capture-to-preview < 1s
-- **Quality**: Final image export at high resolution (e.g., 2x2: 2624×3904px)
+- **Quality**: Final image export at high resolution (e.g., 2x2: 4168×4120px)
 - **Compatibility**: Works on latest Chrome, Safari, Firefox (desktop + mobile)
 - **User Experience**: Complete workflow in < 2 minutes
 
@@ -92,7 +92,7 @@ App.jsx
 │   └── Step indicators (Layout → Camera → Editor → Export)
 │
 ├── LayoutSelector (Step 1)
-│   ├── LayoutPreview × 5
+│   ├── LayoutPreview × 3
 │   └── [Triggers: layoutStore.selectLayout()]
 │
 ├── CameraView (Step 2)
@@ -301,14 +301,12 @@ type Layout = {
  * Frame Type Definition
  */
 type Frame = {
-  id: string,                      // 'none', 'polaroid', 'film-strip', etc.
+  id: string,                      // 'none', 'polaroid', etc.
   name: string,                    // Display name
   layouts: {                       // Layout-specific frame images
-    '2x2': string,                 // Path to 2x2 frame PNG (2624×3904px)
-    '4x1': string,                 // Path to 4x1 frame PNG (5168×1984px)
-    '1x4': string,                 // Path to 1x4 frame PNG (1344×7744px)
-    '3x3': string,                 // Path to 3x3 frame PNG (3904×5824px)
-    '2x3': string,                 // Path to 2x3 frame PNG (2624×5824px)
+    '2x2': string,                 // Path to 2x2 frame PNG (4168×4120px)
+    '1x4': string,                 // Path to 1x4 frame PNG (2040×7480px)
+    '3x3': string,                 // Path to 3x3 frame PNG (6088×6880px)
   },
   preview: string,                 // Preview description
   previewStyle?: object,           // CSS style for editor preview (optional)
@@ -319,7 +317,8 @@ type Frame = {
  * - PNG format with transparency
  * - Transparent center area where photos show through
  * - Fixed dimensions matching layout output size
- * - Each photo cell is 1280×1920px with 16px gaps and 32px padding
+ * - Each photo cell is 1920×1440px (4:3 landscape) with layout-specific gaps and borders
+ * - Generated using frame-generator.html with matching FRAME_SETTINGS
  * - Frames stored in /public/frames/{frame-id}/{layout-id}.png
  */
 ```
@@ -386,6 +385,14 @@ export const usePhotoStore = create(
 - [x] Clicking a layout automatically proceeds to camera step
 - [x] Layout selection updates photoStore.maxPhotos
 
+#### Supported Layouts
+
+| Layout ID | Name | Grid | Photos | Dimensions (px) |
+|-----------|------|------|--------|-----------------|
+| 2x2 | Classic 2x2 | 2 rows × 2 cols | 4 | 4168 × 4120 |
+| 1x4 | Vertical Strip | 4 rows × 1 col | 4 | 2040 × 7480 |
+| 3x3 | Grid 3x3 | 3 rows × 3 cols | 9 | 6088 × 6880 |
+
 #### Wireframe
 
 ```
@@ -438,7 +445,7 @@ COPY.layout = {
 - [x] Captured photos display in a grid matching the selected layout
 - [x] Each photo thumbnail shows its number (1/4, 2/4, etc.)
 - [x] Retake button appears on hover over each thumbnail
-- [x] Photos are captured at 640x480 minimum resolution
+- [x] Photos are captured at 1920×1440 resolution (4:3 landscape)
 - [x] Automatically proceeds to editor when all slots filled
 
 #### Camera Initialization Flow
@@ -506,7 +513,7 @@ COPY.camera = {
 
 ---
 
-### 5.3 Photo Editor (Filters, Frames)
+### 5.3 Photo Editor (Filters & Frames)
 
 #### User Stories
 - **US-009**: As a user, I want to apply filters to enhance my photos
@@ -566,28 +573,51 @@ export const FILTERS = [
 ];
 ```
 
-#### Sticker Interaction
+#### Frame System
+
+The frame system uses layout-specific parameters defined in `FRAME_SETTINGS`:
 
 ```javascript
-// Sticker state example
-{
-  id: 'sticker-1',
-  src: '/assets/stickers/heart.png',
-  x: 400,        // Center X
-  y: 300,        // Center Y
-  scale: 1.0,    // 1.0 = 100% original size
-  rotation: 0,   // Degrees
-  zIndex: 1,     // Layer order
-}
+// Photo dimensions (4:3 landscape)
+const STANDARD_CELL_WIDTH = 1920;
+const STANDARD_CELL_HEIGHT = 1440;
 
-// Event handlers
-onStickerDragStart(e, stickerId)
-onStickerDrag(e, deltaX, deltaY)
-onStickerDragEnd(e)
-onStickerScale(stickerId, scaleDelta)
-onStickerRotate(stickerId, rotationDelta)
-onStickerDelete(stickerId)
+// Frame settings by layout
+const FRAME_SETTINGS = {
+  '2x2': {
+    cellGap: 64,        // Gap between photos
+    sideBorder: 60,     // Left/right border
+    topBorder: 1000,    // Top border
+    bottomBorder: 120,  // Bottom border
+  },
+  '1x4': {
+    cellGap: 64,
+    sideBorder: 60,
+    topBorder: 120,
+    bottomBorder: 1000,
+  },
+  '3x3': {
+    cellGap: 64,
+    sideBorder: 60,
+    topBorder: 1200,
+    bottomBorder: 1200,
+  },
+}
 ```
+
+**Frame Canvas Dimensions**:
+
+| Layout | Width (px) | Height (px) | Formula |
+|--------|-----------|-------------|---------|
+| 2x2 | 4168 | 4120 | (2×1920 + 1×64 + 2×60) × (2×1440 + 1×64 + 1000 + 120) |
+| 1x4 | 2040 | 7480 | (1×1920 + 0×64 + 2×60) × (4×1440 + 3×64 + 120 + 1000) |
+| 3x3 | 6088 | 6880 | (3×1920 + 2×64 + 2×60) × (3×1440 + 2×64 + 1200 + 1200) |
+
+**Frame Generation**:
+- Frames are generated using `frame-generator.html` (external tool, not in repo)
+- Frame images must match exact canvas dimensions
+- Transparent PNG with cutouts for photos
+- Stored in `/public/frames/{frame-id}/{layout-id}.png`
 
 #### Frame Options
 
@@ -596,27 +626,23 @@ export const FRAMES = [
   {
     id: 'none',
     name: 'No Frame',
-    src: null,
+    layouts: {},
+    preview: 'Clean, no border',
   },
   {
-    id: 'rounded',
-    name: 'Rounded Corners',
-    src: '/assets/frames/rounded.svg',
-    type: 'border',
+    id: 'polaroid',
+    name: 'Polaroid',
+    layouts: {
+      '2x2': '/frames/polaroid/2x2.png',
+      '1x4': '/frames/polaroid/1x4.png',
+      '3x3': '/frames/polaroid/3x3.png',
+    },
+    preview: 'Classic instant photo',
+    previewStyle: {
+      border: '16px solid white',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+    },
   },
-  {
-    id: 'film',
-    name: 'Film Strip',
-    src: '/assets/frames/film.svg',
-    type: 'overlay',
-  },
-  {
-    id: 'torn',
-    name: 'Torn Edges',
-    src: '/assets/frames/torn.png',
-    type: 'overlay',
-  },
-  // ... more frames
 ];
 ```
 
@@ -625,25 +651,19 @@ export const FRAMES = [
 ```javascript
 COPY.editor = {
   title: "Edit Your Photos",
-  subtitle: "Apply filters, add stickers, and frames",
+  subtitle: "Apply filters and frames",
   tabs: {
     filters: "Filters",
-    stickers: "Stickers",
     frames: "Frames",
   },
   filterPanel: {
     title: "Choose a Filter",
     apply: "Apply",
   },
-  stickerPanel: {
-    title: "Add Stickers",
-    hint: "Click to add, drag to move, pinch to resize",
-  },
   framePanel: {
     title: "Select a Frame",
   },
   actions: {
-    delete: "Delete",
     reset: "Reset All",
   }
 }
@@ -654,13 +674,13 @@ COPY.editor = {
 ### 5.4 Export & Share
 
 #### User Stories
-- **US-014**: As a user, I want to preview the final composite image before downloading
-- **US-015**: As a user, I want to download the image to my device
-- **US-016**: As a user, I want to share the image on social media
-- **US-017**: As a user, I want to start over and create a new photo
+- **US-012**: As a user, I want to preview the final composite image before downloading
+- **US-013**: As a user, I want to download the image to my device
+- **US-014**: As a user, I want to share the image on social media
+- **US-015**: As a user, I want to start over and create a new photo
 
 #### Acceptance Criteria
-- [x] Final composite image renders at high quality (800x1200px per photo)
+- [x] Final composite image renders at high quality (1920×1440px per photo)
 - [x] Preview shows the exact image that will be downloaded
 - [x] Download button triggers immediate file download
 - [x] Downloaded file is named `dodopic-{timestamp}.jpg`
@@ -674,63 +694,52 @@ COPY.editor = {
 
 ```javascript
 /**
- * Composites all photos into final layout with filters, stickers, and frames
+ * Composites all photos into final layout with filters and frames
  *
  * @param {Array<string>} photos - Array of photo data URLs
  * @param {Layout} layout - Selected layout configuration
- * @param {string} filter - CSS filter string
- * @param {Frame|null} frame - Selected frame
- * @param {Array<Sticker>} stickers - Array of sticker objects
- * @returns {string} - Final composite image as data URL
+ * @param {string} filterId - Filter ID
+ * @param {Frame|null} frameId - Selected frame ID
+ * @returns {Promise<string>} - Final composite image as data URL
  */
-export const compositeFinalImage = (photos, layout, filter, frame, stickers) => {
+export const compositeImage = async ({ photos, layout, filterId, frameId, quality = 0.95 }) => {
+  const settings = FRAME_SETTINGS[layout.id];
+  const { width, height } = getCanvasDimensions(layout);
+
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
+  canvas.width = width;
+  canvas.height = height;
 
-  // Calculate dimensions based on layout
-  const CELL_WIDTH = 600;
-  const CELL_HEIGHT = 900;
-  canvas.width = layout.cols * CELL_WIDTH;
-  canvas.height = layout.rows * CELL_HEIGHT;
-
-  // Step 1: Draw background (white or frame background)
+  // Step 1: Draw white background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Step 2: Draw frame border if type === 'border'
-  if (frame && frame.type === 'border') {
-    drawFrameBorder(ctx, frame, canvas.width, canvas.height);
-  }
-
-  // Step 3: Place photos in grid with filter applied
+  // Step 2: Place photos in grid with filter applied
   photos.forEach((photoDataUrl, index) => {
     const row = Math.floor(index / layout.cols);
     const col = index % layout.cols;
-    const x = col * CELL_WIDTH;
-    const y = row * CELL_HEIGHT;
+    const x = settings.sideBorder + col * (STANDARD_CELL_WIDTH + settings.cellGap);
+    const y = settings.topBorder + row * (STANDARD_CELL_HEIGHT + settings.cellGap);
 
-    const img = new Image();
-    img.src = photoDataUrl;
-    img.onload = () => {
-      ctx.save();
-      ctx.filter = filter;
-      ctx.drawImage(img, x, y, CELL_WIDTH, CELL_HEIGHT);
-      ctx.restore();
-    };
+    // Apply filter and draw with object-fit: cover scaling
+    ctx.save();
+    ctx.filter = getFilterCSS(filterId);
+    ctx.drawImage(img, x, y, STANDARD_CELL_WIDTH, STANDARD_CELL_HEIGHT);
+    ctx.restore();
   });
 
-  // Step 4: Draw stickers on top
-  stickers.forEach(sticker => {
-    drawSticker(ctx, sticker);
-  });
-
-  // Step 5: Draw frame overlay if type === 'overlay'
-  if (frame && frame.type === 'overlay') {
-    drawFrameOverlay(ctx, frame, canvas.width, canvas.height);
+  // Step 3: Draw frame overlay (if exists)
+  const framePath = getFrameImagePath(frameId, layout.id);
+  if (framePath) {
+    const frameImg = new Image();
+    frameImg.src = framePath;
+    await frameImg.onload;
+    ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
   }
 
-  // Step 6: Export as PNG data URL
-  return canvas.toDataURL('image/png', 1.0);
+  // Step 4: Export as JPEG
+  return canvas.toDataURL('image/jpeg', quality);
 };
 ```
 
@@ -741,12 +750,12 @@ export const compositeFinalImage = (photos, layout, filter, frame, stickers) => 
  * Triggers browser download of image
  *
  * @param {string} dataUrl - Image data URL
- * @param {string} filename - Desired filename (default: dodopic-{timestamp}.png)
+ * @param {string} filename - Desired filename (default: dodopic-{timestamp}.jpg)
  */
 export const downloadImage = (dataUrl, filename) => {
   const link = document.createElement('a');
   link.href = dataUrl;
-  link.download = filename || `dodopic-${Date.now()}.png`;
+  link.download = filename || `dodopic-${Date.now()}.jpg`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -765,7 +774,7 @@ export const downloadImage = (dataUrl, filename) => {
 export const shareImage = async (dataUrl) => {
   // Convert data URL to Blob
   const blob = await fetch(dataUrl).then(res => res.blob());
-  const file = new File([blob], 'dodopic.png', { type: 'image/png' });
+  const file = new File([blob], 'dodopic.jpg', { type: 'image/jpeg' });
 
   // Check if Web Share API is available
   if (navigator.share && navigator.canShare({ files: [file] })) {
@@ -777,19 +786,17 @@ export const shareImage = async (dataUrl) => {
       });
       return { success: true, method: 'native' };
     } catch (error) {
-      // User cancelled or error occurred
       console.error('Share failed:', error);
       return { success: false, error };
     }
   } else {
-    // Fallback: Copy to clipboard or show download prompt
+    // Fallback: Copy to clipboard or download
     try {
       await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': blob })
+        new ClipboardItem({ 'image/jpeg': blob })
       ]);
       return { success: true, method: 'clipboard' };
     } catch (error) {
-      // Fallback to download
       downloadImage(dataUrl);
       return { success: true, method: 'download' };
     }
@@ -833,9 +840,9 @@ COPY.export = {
 ### 5.5 Workflow Management
 
 #### User Stories
-- **US-018**: As a user, I want to see which step I'm on in the process
-- **US-019**: As a user, I want to navigate back to previous steps if needed
-- **US-020**: As a user, I want the app to prevent me from skipping steps
+- **US-016**: As a user, I want to see which step I'm on in the process
+- **US-017**: As a user, I want to navigate back to previous steps if needed
+- **US-018**: As a user, I want the app to prevent me from skipping steps
 
 #### Acceptance Criteria
 - [x] Step indicator shows all 4 steps: Layout → Camera → Editor → Export
@@ -933,15 +940,18 @@ export const applyFilterToCanvas = (ctx, filterString, image, x, y, width, heigh
  * @returns {Promise<string>} Data URL of composed image
  */
 export const compositeImage = async ({ photos, layout, filterId, frameId, quality = 0.95 }) => {
-  // Standard dimensions (matches webcam resolution)
-  const CELL_WIDTH = 1280;
-  const CELL_HEIGHT = 1920;
-  const CELL_GAP = 16;
-  const PADDING = 32;
+  // Standard dimensions (4:3 landscape)
+  const CELL_WIDTH = 1920;
+  const CELL_HEIGHT = 1440;
+
+  // Get layout-specific frame settings
+  const settings = FRAME_SETTINGS[layout.id];
 
   // Calculate canvas dimensions
-  const width = layout.cols * CELL_WIDTH + (layout.cols - 1) * CELL_GAP + PADDING * 2;
-  const height = layout.rows * CELL_HEIGHT + (layout.rows - 1) * CELL_GAP + PADDING * 2;
+  const gridWidth = layout.cols * CELL_WIDTH + (layout.cols - 1) * settings.cellGap;
+  const gridHeight = layout.rows * CELL_HEIGHT + (layout.rows - 1) * settings.cellGap;
+  const width = gridWidth + settings.sideBorder * 2;
+  const height = gridHeight + settings.topBorder + settings.bottomBorder;
 
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -959,8 +969,8 @@ export const compositeImage = async ({ photos, layout, filterId, frameId, qualit
       img.onload = () => {
         const row = Math.floor(index / layout.cols);
         const col = index % layout.cols;
-        const x = PADDING + col * (CELL_WIDTH + CELL_GAP);
-        const y = PADDING + row * (CELL_HEIGHT + CELL_GAP);
+        const x = settings.sideBorder + col * (CELL_WIDTH + settings.cellGap);
+        const y = settings.topBorder + row * (CELL_HEIGHT + settings.cellGap);
 
         // Apply filter and draw with object-fit: cover
         ctx.save();
@@ -998,7 +1008,7 @@ export const compositeImage = async ({ photos, layout, filterId, frameId, qualit
  * Gets layout-specific frame image path
  *
  * @param {string} frameId - Frame identifier
- * @param {string} layoutId - Layout identifier (e.g., '2x2', '4x1')
+ * @param {string} layoutId - Layout identifier (e.g., '2x2', '1x4', '3x3')
  * @returns {string|null} Path to frame image or null
  */
 export const getFrameImagePath = (frameId, layoutId) => {
@@ -1009,24 +1019,28 @@ export const getFrameImagePath = (frameId, layoutId) => {
 
 #### 6.1.4 Canvas Dimension Specifications
 
-**Fixed Dimensions (matching webcam resolution)**:
-- Each photo cell: **1280 × 1920 pixels** (2:3 ratio from webcam)
-- Cell gap: **16 pixels**
-- Canvas padding: **32 pixels**
+**Photo Dimensions (4:3 landscape aspect ratio)**:
+- Each photo cell: **1920 × 1440 pixels**
+- Aspect ratio: **4:3 (landscape)**
+
+**Frame Settings by Layout**:
+
+| Layout | Cell Gap | Side Border | Top Border | Bottom Border |
+|--------|----------|-------------|------------|---------------|
+| 2x2 | 64px | 60px | 1000px | 120px |
+| 1x4 | 64px | 60px | 120px | 1000px |
+| 3x3 | 64px | 60px | 1200px | 1200px |
 
 **Layout Output Sizes**:
-| Layout | Dimensions (px) | Formula |
-|--------|-----------------|---------|
-| 2×2 | 2624 × 3904 | cols×1280 + (cols-1)×16 + 64 |
-| 4×1 | 5168 × 1984 | 4×1280 + 3×16 + 64 |
-| 1×4 | 1344 × 7744 | 1×1280 + 0×16 + 64 |
-| 3×3 | 3904 × 5824 | 3×1280 + 2×16 + 64 |
-| 2×3 | 2624 × 5824 | 2×1280 + 1×16 + 64 |
+
+| Layout | Width (px) | Height (px) | Grid Size | Formula |
+|--------|-----------|-------------|-----------|---------|
+| 2×2 | 4168 | 4120 | 2 cols × 2 rows | (2×1920 + 1×64 + 2×60) × (2×1440 + 1×64 + 1000 + 120) |
+| 1×4 | 2040 | 7480 | 1 col × 4 rows | (1×1920 + 0×64 + 2×60) × (4×1440 + 3×64 + 120 + 1000) |
+| 3×3 | 6088 | 6880 | 3 cols × 3 rows | (3×1920 + 2×64 + 2×60) × (3×1440 + 2×64 + 1200 + 1200) |
 
 **Object-fit: Cover Scaling**:
 Photos are scaled to fill the cell while maintaining aspect ratio, with centered cropping to prevent distortion.
-
-```
 
 ---
 
@@ -1054,10 +1068,10 @@ export const convertDataUrlToBlob = async (dataUrl) => {
  * Generates unique filename with timestamp
  *
  * @param {string} prefix - Filename prefix (default: 'dodopic')
- * @param {string} extension - File extension (default: 'png')
+ * @param {string} extension - File extension (default: 'jpg')
  * @returns {string} - Formatted filename
  */
-export const generateFilename = (prefix = 'dodopic', extension = 'png') => {
+export const generateFilename = (prefix = 'dodopic', extension = 'jpg') => {
   const timestamp = new Date().toISOString().replace(/[:.-]/g, '');
   return `${prefix}-${timestamp}.${extension}`;
 };
@@ -1079,7 +1093,7 @@ export const canShare = () => {
   return (
     'share' in navigator &&
     'canShare' in navigator &&
-    navigator.canShare({ files: [new File([], 'test.png')] })
+    navigator.canShare({ files: [new File([], 'test.jpg')] })
   );
 };
 ```
@@ -1096,8 +1110,8 @@ export const canShare = () => {
  */
 export const shareWithFallback = async (dataUrl, options = {}) => {
   const blob = await convertDataUrlToBlob(dataUrl);
-  const file = new File([blob], options.filename || 'dodopic.png', {
-    type: 'image/png'
+  const file = new File([blob], options.filename || 'dodopic.jpg', {
+    type: 'image/jpeg'
   });
 
   // Try 1: Native Web Share API
@@ -1121,7 +1135,7 @@ export const shareWithFallback = async (dataUrl, options = {}) => {
   if ('clipboard' in navigator) {
     try {
       await navigator.clipboard.write([
-        new ClipboardItem({ 'image/png': blob })
+        new ClipboardItem({ 'image/jpeg': blob })
       ]);
       return { success: true, method: 'clipboard' };
     } catch (error) {
@@ -1565,27 +1579,20 @@ export const COPY = {
   // Editor (Step 3)
   editor: {
     title: "Edit Your Photos",
-    subtitle: "Apply filters, add stickers, and frames",
+    subtitle: "Apply filters and frames",
     tabs: {
       filters: "Filters",
-      stickers: "Stickers",
       frames: "Frames",
     },
     filterPanel: {
       title: "Choose a Filter",
       noFilter: "Original",
     },
-    stickerPanel: {
-      title: "Add Stickers",
-      hint: "Tap to add, drag to move, pinch to resize",
-      deleteHint: "Tap outside to deselect",
-    },
     framePanel: {
       title: "Select a Frame",
       noFrame: "No Frame",
     },
     actions: {
-      delete: "Delete",
       reset: "Reset All",
       confirmReset: "Are you sure you want to reset all edits?",
     },
@@ -1680,16 +1687,12 @@ export const COPY = {
 dodopic/
 ├── public/
 │   ├── assets/
-│   │   ├── stickers/
-│   │   │   ├── heart.png
-│   │   │   ├── star.png
-│   │   │   ├── smiley.png
-│   │   │   └── ... (10-15 stickers)
 │   │   ├── frames/
-│   │   │   ├── rounded.svg
-│   │   │   ├── film.svg
-│   │   │   ├── torn.png
-│   │   │   └── ... (5-8 frames)
+│   │   │   ├── polaroid/
+│   │   │   │   ├── 2x2.png
+│   │   │   │   ├── 1x4.png
+│   │   │   │   └── 3x3.png
+│   │   │   └── ... (additional frames)
 │   │   └── layout-previews/
 │   │       ├── 2x2.jpg
 │   │       ├── 1x4.jpg
@@ -1723,7 +1726,6 @@ dodopic/
 │   │   │   ├── components/
 │   │   │   │   ├── EditorCanvas.jsx
 │   │   │   │   ├── FilterPanel.jsx
-│   │   │   │   ├── StickerPanel.jsx
 │   │   │   │   ├── FramePanel.jsx
 │   │   │   │   └── EditorToolbar.jsx
 │   │   │   ├── hooks/
@@ -1734,7 +1736,6 @@ dodopic/
 │   │   │   │   └── canvas.js
 │   │   │   └── constants/
 │   │   │       ├── filters.js
-│   │   │       ├── stickers.js
 │   │   │       └── frames.js
 │   │   │
 │   │   ├── export/
@@ -1849,7 +1850,7 @@ import { usePhotoStore, useLayoutStore } from '@/store';
 - Complete user flow: Layout → Capture → Edit → Export
 - Retake photo functionality
 - Filter application across all photos
-- Sticker manipulation (drag, scale, rotate)
+- Frame application with layout-specific images
 - Download and share flows
 
 ### 9.3 Browser Testing Matrix
@@ -1868,23 +1869,21 @@ import { usePhotoStore, useLayoutStore } from '@/store';
 - [ ] Video stream displays correctly
 - [ ] Countdown shows before capture
 - [ ] Shutter animation plays
-- [ ] Photos capture at correct resolution
+- [ ] Photos capture at 1920×1440 resolution
 - [ ] Retake replaces correct photo
 
 **Editor Functionality**:
 - [ ] Filters apply to all photos
 - [ ] Filter preview matches final output
-- [ ] Stickers add to canvas
-- [ ] Stickers drag smoothly
-- [ ] Stickers scale correctly
-- [ ] Stickers rotate correctly
-- [ ] Stickers delete on outside click
 - [ ] Frame overlays correctly
+- [ ] Frame preview shows in editor
+- [ ] Layout-specific frames load correctly
 
 **Export Functionality**:
 - [ ] Composite image renders correctly
 - [ ] Download triggers file save
 - [ ] Downloaded image quality is high
+- [ ] Downloaded image dimensions are correct
 - [ ] Share opens native sheet (mobile)
 - [ ] Share fallback works (desktop)
 - [ ] Start Over clears all state
@@ -1969,10 +1968,10 @@ VITE_SENTRY_DSN=your-sentry-dsn
 - Image optimization (use WebP for layout previews)
 
 **Runtime Optimizations**:
-- Lazy load sticker/frame assets
+- Lazy load frame assets
 - Use `React.memo()` for expensive components
-- Debounce sticker drag events
 - Optimize canvas rendering (avoid unnecessary redraws)
+- Preload camera permissions on layout selection
 
 **Performance Budgets**:
 - Initial load: < 300KB (compressed)
@@ -1997,10 +1996,20 @@ VITE_SENTRY_DSN=your-sentry-dsn
 - Custom frame creator
 - GIF export option
 - Batch download (all individual photos)
+- Additional layouts (square grid, custom arrangements)
 
 ---
 
 ## Appendix B: Changelog
+
+**v2.2.0** (2026-01-28)
+- Updated to 4:3 landscape photo aspect ratio (1920×1440px)
+- Removed 4x1 and 2x3 layouts (now supports: 2x2, 1x4, 3x3)
+- Implemented layout-specific FRAME_SETTINGS system
+- Removed all sticker functionality
+- Updated frame dimensions to match new photo sizes
+- Simplified editor to filters and frames only
+- Updated all documentation to reflect current implementation
 
 **v2.0.0** (2026-01-12)
 - Complete architecture redesign
@@ -2022,6 +2031,8 @@ VITE_SENTRY_DSN=your-sentry-dsn
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.2.0 | 2026-01-28 | AI Assistant | Updated for 4:3 landscape photos, removed stickers, updated layouts |
+| 2.1.0 | 2026-01-16 | AI Assistant | Minor updates and clarifications |
 | 2.0.0 | 2026-01-12 | AI Assistant | Complete SDD for refactor project |
 | 1.0.0 | 2025-03-08 | Original Dev | Initial project setup |
 

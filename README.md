@@ -2,7 +2,7 @@
 
 **A modern, browser-based photo booth application**
 
-Create instant photo collages with filters, stickers, and frames—all in your browser. No backend required, photos stay on your device.
+Create instant photo collages with filters and frames—all in your browser. No backend required, photos stay on your device.
 
 [![React](https://img.shields.io/badge/React-19.0.0-61DAFB?logo=react)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.2.0-646CFF?logo=vite)](https://vitejs.dev/)
@@ -13,11 +13,11 @@ Create instant photo collages with filters, stickers, and frames—all in your b
 
 ## ✨ Features
 
-- **5 Photo Layouts**: Classic 2x2, horizontal strip (4x1), vertical strip (1x4), 3x3 grid, and 2x3 grid
+- **3 Photo Layouts**: Classic 2x2 grid, vertical strip (1x4), and 3x3 grid
 - **Webcam Capture**: Take multiple photos with countdown timer
 - **Retake Functionality**: Replace individual photos without starting over
 - **Creative Filters**: Black & White, Vintage, Vivid, Cool/Warm tones
-- **Decorative Frames**: PNG image overlays with layout-specific designs
+- **Decorative Frames**: PNG overlays with layout-specific designs
 - **Instant Export**: Download high-resolution JPEG or share your creation
 - **Modern UI**: macOS/iOS-inspired design with smooth animations
 - **100% Client-Side**: No server needed, photos never leave your device
@@ -28,7 +28,7 @@ Create instant photo collages with filters, stickers, and frames—all in your b
 
 ### Prerequisites
 
-- Node.js 18+ and npm (or yarn/pnpm)
+- Node.js 18+ and npm
 - Modern browser with webcam support (Chrome, Safari, Firefox)
 
 ### Installation
@@ -36,8 +36,6 @@ Create instant photo collages with filters, stickers, and frames—all in your b
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/dodopic.git
-
-# Navigate to project directory
 cd dodopic
 
 # Install dependencies
@@ -49,7 +47,7 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-**Important**: Webcam access requires HTTPS or localhost. Use `https://localhost:5173` or deploy to a secure host.
+**Important**: Webcam access requires HTTPS or localhost.
 
 ---
 
@@ -61,22 +59,22 @@ DodoPic follows a simple 4-step workflow:
 1. Choose Layout → 2. Capture Photos → 3. Edit & Decorate → 4. Download/Share
 ```
 
-### Step 1: Choose Your Layout
-Select from 5 photo layouts (2x2, 4x1, 1x4, 3x3, 2x3). Each layout determines how many photos you'll capture.
+### 1. Choose Your Layout
+Select from 3 photo layouts (2x2, 1x4, 3x3). Each layout determines how many photos you'll capture.
 
-### Step 2: Capture Photos
+### 2. Capture Photos
 - Click "Start Camera" to enable your webcam
 - Follow the 3-second countdown
 - Photos are captured automatically based on your layout
 - Use "Retake" to replace any photo
 
-### Step 3: Edit & Decorate
-- **Filters**: Apply one of 6 preset filters to all photos
-- **Frames**: Choose a decorative PNG overlay for the final image (layout-specific designs)
+### 3. Edit & Decorate
+- **Filters**: Apply one of 8 preset filters to all photos
+- **Frames**: Choose a decorative PNG overlay (layout-specific designs)
 
-### Step 4: Export
+### 4. Export
 - Preview your final creation
-- Download as high-resolution JPEG (dimensions vary by layout, e.g., 2x2: 2624×3904px)
+- Download as high-resolution JPEG
 - Share via Web Share API (mobile) or clipboard (desktop)
 - Start over to create another!
 
@@ -84,24 +82,20 @@ Select from 5 photo layouts (2x2, 4x1, 1x4, 3x3, 2x3). Each layout determines ho
 
 ## 🛠️ Tech Stack
 
-| Technology | Purpose | Why? |
-|------------|---------|------|
-| **React 19** | UI Framework | Latest stable, excellent performance |
-| **Vite 6** | Build Tool | Fast HMR, optimized builds |
-| **Zustand 5** | State Management | Lightweight (2KB), simple API, no boilerplate |
-| **Tailwind CSS 3** | Styling | Rapid development, consistent design system |
-| **react-webcam** | Camera Access | Reliable WebRTC wrapper |
-| **Framer Motion** | Animations | Declarative, spring-based physics |
-| **Canvas API** | Image Processing | Native browser API for compositing |
-| **lucide-react** | Icons | Modern, tree-shakeable icon library |
+| Technology | Purpose |
+|------------|---------|
+| **React 19** | UI Framework |
+| **Vite 6** | Build Tool |
+| **Zustand 5** | State Management |
+| **Tailwind CSS 3** | Styling |
+| **react-webcam** | Camera Access |
+| **Framer Motion** | Animations |
+| **Canvas API** | Image Processing |
+| **lucide-react** | Icons |
 
-**Why Zustand over Redux?**
-- 95% smaller bundle (2KB vs 40KB)
-- No boilerplate code
-- Built-in DevTools support
-- Perfect for this project's state needs
+**Why Zustand?** 95% smaller than Redux (2KB vs 40KB), no boilerplate, built-in DevTools support.
 
-See [SPEC.md](./SPEC.md) for detailed technical decisions.
+See [SPEC.md](./SPEC.md) for detailed technical specifications.
 
 ---
 
@@ -112,7 +106,7 @@ src/
 ├── features/           # Feature-based modules
 │   ├── layout/        # Layout selection
 │   ├── camera/        # Photo capture
-│   ├── editor/        # Filters, stickers, frames
+│   ├── editor/        # Filters & frames
 │   ├── export/        # Download & share
 │   └── workflow/      # Step progression
 ├── store/             # Zustand state management
@@ -121,42 +115,30 @@ src/
 └── main.jsx           # Entry point
 ```
 
-**Key Architectural Decisions**:
-- **Feature-based organization**: Each feature has its own components, hooks, and utils
-- **Zustand stores**: Separate stores for photos, layout, editor, and workflow
-- **Centralized copy**: All UI text in `shared/copy/en.js` for easy localization
-- **Canvas-based rendering**: Efficient image processing and export
-
-See [SPEC.md](./SPEC.md) for complete file structure and naming conventions.
-
 ---
 
-## 🎨 Design System
+## 🎨 Technical Specifications
 
-DodoPic uses a macOS/iOS-inspired design language:
+### Photo Specifications
+- **Aspect Ratio**: 4:3 landscape
+- **Cell Dimensions**: 1920×1440 pixels
+- **Cell Gap**: 64 pixels between photos
 
-- **Colors**: iOS system colors (blue, indigo, pink, etc.)
-- **Typography**: SF Pro Display / Inter fallback
-- **Shadows**: Subtle, layered macOS-style shadows
-- **Blur**: Backdrop blur for overlays and modals
-- **Animations**: Spring-based, natural motion
-- **Responsiveness**: Mobile-first, adaptive layouts
+### Layout Dimensions
+- **2x2**: 4168 × 4120 pixels (4 photos)
+- **1x4**: 2040 × 7480 pixels (4 photos)
+- **3x3**: 6088 × 6880 pixels (9 photos)
 
-**Responsive Breakpoints**:
-- Mobile: < 768px (full-screen, bottom navigation)
-- Tablet: 768px - 1024px (split views)
-- Desktop: > 1024px (multi-column layouts)
+### Frame Parameters (Layout-Specific)
+Each layout uses different frame borders for visual balance:
 
----
+| Layout | Cell Gap | Side Border | Top Border | Bottom Border |
+|--------|----------|-------------|------------|---------------|
+| 2x2    | 64px     | 60px        | 1000px     | 120px         |
+| 1x4    | 64px     | 60px        | 120px      | 1000px        |
+| 3x3    | 64px     | 60px        | 1200px     | 1200px        |
 
-## 📚 Documentation
-
-- **[SPEC.md](./SPEC.md)**: Complete Software Design Specification
-  - System architecture
-  - Feature specifications
-  - API documentation
-  - UI/UX guidelines
-  - Testing strategy
+Frame generation uses `frame-generator.html` (external tool).
 
 ---
 
@@ -176,18 +158,14 @@ npm run preview
 
 # Lint code
 npm run lint
-
-# Format code (if configured)
-npm run format
 ```
 
 ### Browser DevTools
 
 Zustand integrates with Redux DevTools for state debugging:
 1. Install [Redux DevTools Extension](https://github.com/reduxjs/redux-devtools)
-2. Open browser DevTools
-3. Navigate to "Redux" tab
-4. Inspect state changes in real-time
+2. Open browser DevTools → "Redux" tab
+3. Inspect state changes in real-time
 
 ---
 
@@ -220,47 +198,14 @@ npm run build
 
 ---
 
-## 🤝 Contributing
+## 📚 Documentation
 
-Contributions are welcome! Please follow these guidelines:
-
-1. **Code Style**: All code (including comments) must be in English
-2. **Naming**: Use descriptive, English names for variables, functions, and files
-3. **Documentation**: Update SPEC.md if changing architecture
-4. **Testing**: Add tests for new features
-5. **Commits**: Use [Conventional Commits](https://www.conventionalcommits.org/) format
-
-```bash
-# Example commit messages
-feat: Add retake functionality for individual photos
-fix: Resolve camera permission error on Safari
-docs: Update API specifications in SPEC.md
-```
-
----
-
-## 📝 Roadmap
-
-### Current Version: 2.1.0
-- ✅ 5 photo layouts (2x2, 4x1, 1x4, 3x3, 2x3)
-- ✅ Webcam capture with countdown
-- ✅ Retake individual photos
-- ✅ 6 filter presets
-- ✅ PNG frame overlays (layout-specific)
-- ✅ High-resolution JPEG export
-- ✅ Download & share
-
-### Future (V3.0)
-- [ ] Multi-language support (i18n)
-- [ ] Custom text overlay
-- [ ] Sticker decorations (drag, scale, rotate)
-- [ ] AI-powered filters (beauty mode)
-- [ ] Cloud storage (optional)
-- [ ] Advanced editing (crop, brightness/contrast)
-- [ ] GIF export
-- [ ] PWA support (offline mode)
-
-See [SPEC.md - Appendix A](./SPEC.md#appendix-a-future-enhancements-v2) for complete list.
+- **[SPEC.md](./SPEC.md)**: Complete Software Design Specification
+  - System architecture
+  - Feature specifications
+  - API documentation
+  - UI/UX guidelines
+  - Testing strategy
 
 ---
 
@@ -274,14 +219,48 @@ See [SPEC.md - Appendix A](./SPEC.md#appendix-a-future-enhancements-v2) for comp
 ### Low Image Quality
 - Check `canvas.toDataURL()` quality parameter in `export/utils/imageComposite.js`
 - Default is `0.95` (high quality JPEG)
-- All photos use fixed dimensions (1280×1920 per cell) matching webcam resolution
-- Object-fit: cover scaling prevents distortion
+- All photos use fixed dimensions (1920×1440 per cell)
 
 ### Share Not Working
 - **Web Share API** is only available on:
   - Mobile browsers (iOS Safari 12.2+, Chrome Mobile 61+)
   - Desktop Chrome 89+ (limited support)
 - Fallback: Clipboard API or download prompt
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. **Code Style**: All code (including comments) must be in English
+2. **Naming**: Use descriptive, English names for variables, functions, and files
+3. **Documentation**: Update SPEC.md if changing architecture
+4. **Commits**: Use [Conventional Commits](https://www.conventionalcommits.org/) format
+
+```bash
+# Example commit messages
+feat: Add new filter preset
+fix: Resolve camera permission error on Safari
+docs: Update frame specifications in SPEC.md
+```
+
+---
+
+## 📝 Version History
+
+### Current Version: 2.2.0
+- ✅ 3 photo layouts (2x2, 1x4, 3x3)
+- ✅ 4:3 landscape photo format (1920×1440px)
+- ✅ Webcam capture with countdown
+- ✅ Retake individual photos
+- ✅ 8 filter presets
+- ✅ Layout-specific frame parameters
+- ✅ PNG frame overlays
+- ✅ High-resolution JPEG export
+- ✅ Download & share
+
+See [SPEC.md - Appendix B](./SPEC.md#appendix-b-changelog) for complete changelog.
 
 ---
 
@@ -300,9 +279,5 @@ MIT License - see [LICENSE](./LICENSE) for details.
 - [Tailwind CSS](https://tailwindcss.com/) for rapid styling
 
 ---
-
-## 📧 Contact
-
-Questions? Suggestions? Open an issue or reach out!
 
 **Built with ❤️ using modern web technologies**
