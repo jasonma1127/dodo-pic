@@ -1,0 +1,13 @@
+{
+  "id": "dodo-lin",
+  "name": "Dodo Lin",
+  "instagram": "@july1st_2014",
+  "bio": "Frame designer and artist",
+  "frames": [
+    {
+      "id": "polaroid",
+      "name": "Polaroid",
+      "preview": "Classic instant photo"
+    }
+  ]
+}

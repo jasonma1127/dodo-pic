@@ -1,17 +1,25 @@
 /**
  * Frame Constants
- * Defines all available photo frames
+ * Defines all available photo frames grouped by artists
+ *
+ * File structure:
+ * public/frames/
+ *   ├── {artistId}/
+ *   │   ├── artist.json          (artist metadata)
+ *   │   ├── 2x2/
+ *   │   │   └── {frameId}.png
+ *   │   ├── 1x4/
+ *   │   │   └── {frameId}.png
+ *   │   └── 3x3/
+ *   │       └── {frameId}.png
  *
  * Each frame object contains:
  * - id: Unique identifier
  * - name: Display name
- * - layouts: Object mapping layout IDs to frame image paths
+ * - artistId: Reference to artist (or null for built-in frames)
  * - preview: Preview description
- * - previewStyle: CSS style for preview in editor (optional)
  *
- * Frame images should be placed in /public/frames/{frame-id}/
- * Each frame needs separate images for different layouts (2x2, 1x4, 3x3)
- * Images should have transparent center area where photos will show through
+ * Frame images have transparent center area where photos show through
  *
  * IMPORTANT: Frame image dimensions (4:3 landscape photos):
  * Each photo cell: 1920x1440 pixels (4:3 landscape)
@@ -22,32 +30,40 @@
  * - 1x4: 2040 x 7480 pixels (cellGap: 64, sideBorder: 60, topBorder: 120, bottomBorder: 1000)
  * - 3x3: 6088 x 6880 pixels (cellGap: 64, sideBorder: 60, topBorder: 1200, bottomBorder: 1200)
  *
- * Frame generation: Use frame-generator.html with matching parameters
+ * Frame generation: Use tools/frame-generator.html with matching parameters
  */
+
+/**
+ * Artist information
+ */
+export const ARTISTS = {
+  builtin: {
+    id: 'builtin',
+    name: 'Built-in',
+    instagram: null,
+    bio: 'Default frames',
+  },
+  'dodo-lin': {
+    id: 'dodo-lin',
+    name: 'Dodo Lin',
+    instagram: '@july1st_2014',
+    bio: 'Frame designer and artist',
+  },
+  // Add more artists here as they join
+};
 
 export const FRAMES = [
   {
     id: 'none',
     name: 'No Frame',
-    layouts: {},
+    artistId: 'builtin',
     preview: 'Clean, no border',
-    previewStyle: {}, // No style for preview
   },
   {
     id: 'polaroid',
     name: 'Polaroid',
-    layouts: {
-      '2x2': '/frames/polaroid/2x2.png',
-      '4x1': '/frames/polaroid/4x1.png',
-      '1x4': '/frames/polaroid/1x4.png',
-      '3x3': '/frames/polaroid/3x3.png',
-      '2x3': '/frames/polaroid/2x3.png',
-    },
+    artistId: 'dodo-lin',
     preview: 'Classic instant photo',
-    previewStyle: {
-      border: '16px solid white',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-    },
   },
 ];
 
@@ -61,22 +77,55 @@ export const getFrameById = (frameId) => {
 };
 
 /**
- * Get frame preview style by ID (for Editor preview only)
- * @param {string} frameId - Frame identifier
- * @returns {Object} CSS style object for preview
- */
-export const getFrameStyle = (frameId) => {
-  const frame = getFrameById(frameId);
-  return frame ? (frame.previewStyle || {}) : {};
-};
-
-/**
  * Get frame image path by ID and layout
+ * Uses new structure: /frames/{artistId}/{layoutId}/{frameId}.png
  * @param {string} frameId - Frame identifier
- * @param {string} layoutId - Layout identifier (e.g., '2x2', '4x1', '1x4', '3x3', '2x3')
+ * @param {string} layoutId - Layout identifier (e.g., '2x2', '1x4', '3x3')
  * @returns {string|null} Path to frame image or null
  */
 export const getFrameImagePath = (frameId, layoutId) => {
   const frame = getFrameById(frameId);
-  return frame?.layouts?.[layoutId] || null;
+  if (!frame || !frame.artistId) return null;
+
+  // No frame returns null (no image)
+  if (frameId === 'none') return null;
+
+  // New structure: /frames/{artistId}/{layoutId}/{frameId}.png
+  return `/frames/${frame.artistId}/${layoutId}/${frameId}.png`;
+};
+
+/**
+ * Get artist by ID
+ * @param {string} artistId - Artist identifier
+ * @returns {Object|null} Artist object or null if not found
+ */
+export const getArtistById = (artistId) => {
+  return ARTISTS[artistId] || null;
+};
+
+/**
+ * Get frames grouped by artist
+ * @returns {Object} Object with artistId as keys and array of frames as values
+ */
+export const getFramesByArtist = () => {
+  const grouped = {};
+
+  FRAMES.forEach(frame => {
+    const artistId = frame.artistId || 'builtin';
+    if (!grouped[artistId]) {
+      grouped[artistId] = [];
+    }
+    grouped[artistId].push(frame);
+  });
+
+  return grouped;
+};
+
+/**
+ * Get all unique artists who have frames
+ * @returns {Array} Array of artist objects
+ */
+export const getFrameArtists = () => {
+  const artistIds = [...new Set(FRAMES.map(f => f.artistId || 'builtin'))];
+  return artistIds.map(id => ARTISTS[id]).filter(Boolean);
 };
