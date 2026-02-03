@@ -1,7 +1,7 @@
 # DodoPic - Software Design Specification
 
-**Version:** 2.2.0
-**Last Updated:** 2026-01-28
+**Version:** 2.3.0
+**Last Updated:** 2026-02-04
 **Status:** In Development
 
 ---
@@ -289,27 +289,35 @@ type Layout = {
 {
   // State
   currentFilter: 'none',           // FilterId
-  selectedFrame: 'none',           // FrameId
+  selectedFrame: 'solid-color',    // FrameId (default: solid-color)
+  frameColor: '#FFFFFF',           // Hex color for solid-color frame
 
   // Actions
   setFilter: (filterId) => void,
   setFrame: (frameId) => void,
+  setFrameColor: (color) => void,  // Set custom frame color
   resetEditor: () => void,
+}
+
+/**
+ * Artist Type Definition
+ */
+type Artist = {
+  id: string,                      // 'builtin', 'dodo-lin', etc.
+  name: string,                    // Display name
+  instagram: string | null,        // Instagram handle (e.g., '@july1st_2014')
+  bio: string,                     // Short description
 }
 
 /**
  * Frame Type Definition
  */
 type Frame = {
-  id: string,                      // 'none', 'polaroid', etc.
+  id: string,                      // 'solid-color', 'polaroid', etc.
   name: string,                    // Display name
-  layouts: {                       // Layout-specific frame images
-    '2x2': string,                 // Path to 2x2 frame PNG (4168×4120px)
-    '1x4': string,                 // Path to 1x4 frame PNG (2040×7480px)
-    '3x3': string,                 // Path to 3x3 frame PNG (6088×6880px)
-  },
+  artistId: string,                // Reference to artist (e.g., 'builtin', 'dodo-lin')
   preview: string,                 // Preview description
-  previewStyle?: object,           // CSS style for editor preview (optional)
+  customizable?: boolean,          // True if frame has customizable options (e.g., color)
 }
 
 /**
@@ -318,8 +326,9 @@ type Frame = {
  * - Transparent center area where photos show through
  * - Fixed dimensions matching layout output size
  * - Each photo cell is 1920×1440px (4:3 landscape) with layout-specific gaps and borders
- * - Generated using frame-generator.html with matching FRAME_SETTINGS
- * - Frames stored in /public/frames/{frame-id}/{layout-id}.png
+ * - Generated using tools/frame-generator.html with matching FRAME_SETTINGS
+ * - Frames stored in /public/frames/{artistId}/{layoutId}/{frameId}.png
+ * - Special case: solid-color frame has no image files (uses frameColor instead)
  */
 ```
 
@@ -619,31 +628,82 @@ const FRAME_SETTINGS = {
 - Transparent PNG with cutouts for photos
 - Stored in `/public/frames/{frame-id}/{layout-id}.png`
 
-#### Frame Options
+#### Artist-Based Frame System
+
+**Artist Management:**
+
+```javascript
+export const ARTISTS = {
+  builtin: {
+    id: 'builtin',
+    name: 'Built-in',
+    instagram: null,
+    bio: 'Default frames',
+  },
+  'dodo-lin': {
+    id: 'dodo-lin',
+    name: 'Dodo Lin',
+    instagram: '@july1st_2014',
+    bio: 'Frame designer and artist',
+  },
+  // Add more artists here as they join
+};
+```
+
+**Frame Options:**
 
 ```javascript
 export const FRAMES = [
   {
-    id: 'none',
-    name: 'No Frame',
-    layouts: {},
-    preview: 'Clean, no border',
+    id: 'solid-color',
+    name: 'Solid Color',
+    artistId: 'builtin',
+    preview: 'Custom color frame',
+    customizable: true,  // Indicates this frame has customizable options
   },
   {
     id: 'polaroid',
     name: 'Polaroid',
-    layouts: {
-      '2x2': '/frames/polaroid/2x2.png',
-      '1x4': '/frames/polaroid/1x4.png',
-      '3x3': '/frames/polaroid/3x3.png',
-    },
+    artistId: 'dodo-lin',
     preview: 'Classic instant photo',
-    previewStyle: {
-      border: '16px solid white',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-    },
   },
 ];
+```
+
+**Helper Functions:**
+
+```javascript
+// Get artist by ID
+export const getArtistById = (artistId) => ARTISTS[artistId] || null;
+
+// Get frames grouped by artist
+export const getFramesByArtist = () => {
+  const grouped = {};
+  FRAMES.forEach(frame => {
+    const artistId = frame.artistId || 'builtin';
+    if (!grouped[artistId]) grouped[artistId] = [];
+    grouped[artistId].push(frame);
+  });
+  return grouped;
+};
+
+// Get all unique artists who have frames
+export const getFrameArtists = () => {
+  const artistIds = [...new Set(FRAMES.map(f => f.artistId || 'builtin'))];
+  return artistIds.map(id => ARTISTS[id]).filter(Boolean);
+};
+
+// Get frame image path (new artist-based structure)
+export const getFrameImagePath = (frameId, layoutId) => {
+  const frame = getFrameById(frameId);
+  if (!frame || !frame.artistId) return null;
+
+  // Frames without images return null
+  if (frameId === 'none' || frameId === 'solid-color') return null;
+
+  // New structure: /frames/{artistId}/{layoutId}/{frameId}.png
+  return `/frames/${frame.artistId}/${layoutId}/${frameId}.png`;
+};
 ```
 
 #### Copy (UI Text)
@@ -936,10 +996,11 @@ export const applyFilterToCanvas = (ctx, filterString, image, x, y, width, heigh
  * @param {Object} options.layout - Layout configuration
  * @param {string} options.filterId - Filter ID
  * @param {string} options.frameId - Frame ID
+ * @param {string} options.frameColor - Custom frame color (for solid-color frame)
  * @param {number} options.quality - JPEG quality (0-1), default 0.95
  * @returns {Promise<string>} Data URL of composed image
  */
-export const compositeImage = async ({ photos, layout, filterId, frameId, quality = 0.95 }) => {
+export const compositeImage = async ({ photos, layout, filterId, frameId, frameColor = '#FFFFFF', quality = 0.95 }) => {
   // Standard dimensions (4:3 landscape)
   const CELL_WIDTH = 1920;
   const CELL_HEIGHT = 1440;
@@ -958,8 +1019,8 @@ export const compositeImage = async ({ photos, layout, filterId, frameId, qualit
   canvas.width = width;
   canvas.height = height;
 
-  // 1. Draw white background
-  ctx.fillStyle = '#ffffff';
+  // 1. Draw background (white or custom color for solid-color frame)
+  ctx.fillStyle = frameId === 'solid-color' ? frameColor : '#ffffff';
   ctx.fillRect(0, 0, width, height);
 
   // 2. Draw photos with filter
@@ -1006,6 +1067,7 @@ export const compositeImage = async ({ photos, layout, filterId, frameId, qualit
 ```javascript
 /**
  * Gets layout-specific frame image path
+ * Uses new artist-based structure: /frames/{artistId}/{layoutId}/{frameId}.png
  *
  * @param {string} frameId - Frame identifier
  * @param {string} layoutId - Layout identifier (e.g., '2x2', '1x4', '3x3')
@@ -1013,7 +1075,13 @@ export const compositeImage = async ({ photos, layout, filterId, frameId, qualit
  */
 export const getFrameImagePath = (frameId, layoutId) => {
   const frame = getFrameById(frameId);
-  return frame?.layouts?.[layoutId] || null;
+  if (!frame || !frame.artistId) return null;
+
+  // Frames without images return null (e.g., solid-color)
+  if (frameId === 'none' || frameId === 'solid-color') return null;
+
+  // New structure: /frames/{artistId}/{layoutId}/{frameId}.png
+  return `/frames/${frame.artistId}/${layoutId}/${frameId}.png`;
 };
 ```
 
@@ -1590,7 +1658,8 @@ export const COPY = {
     },
     framePanel: {
       title: "Select a Frame",
-      noFrame: "No Frame",
+      solidColor: "Solid Color",
+      frameColor: "Frame Color",
     },
     actions: {
       reset: "Reset All",
@@ -1686,13 +1755,17 @@ export const COPY = {
 ```
 dodopic/
 ├── public/
+│   ├── frames/
+│   │   ├── dodo-lin/
+│   │   │   ├── artist.json
+│   │   │   ├── 2x2/
+│   │   │   │   └── polaroid.png
+│   │   │   ├── 1x4/
+│   │   │   │   └── polaroid.png
+│   │   │   └── 3x3/
+│   │   │       └── polaroid.png
+│   │   └── ... (additional artists)
 │   ├── assets/
-│   │   ├── frames/
-│   │   │   ├── polaroid/
-│   │   │   │   ├── 2x2.png
-│   │   │   │   ├── 1x4.png
-│   │   │   │   └── 3x3.png
-│   │   │   └── ... (additional frames)
 │   │   └── layout-previews/
 │   │       ├── 2x2.jpg
 │   │       ├── 1x4.jpg
@@ -2002,6 +2075,21 @@ VITE_SENTRY_DSN=your-sentry-dsn
 
 ## Appendix B: Changelog
 
+**v2.3.0** (2026-02-04)
+- Implemented artist-based frame organization system
+- Added ARTISTS data structure with metadata (name, Instagram, bio)
+- Reorganized frame file structure: `/frames/{artistId}/{layoutId}/{frameId}.png`
+- Added first frame artist: Dodo Lin (@july1st_2014)
+- Implemented artist tabs navigation in frame selector
+- Added artist info cards with Instagram attribution
+- Replaced 'No Frame' with customizable 'Solid Color' frame
+- Added frameColor state to editorStore (default: #FFFFFF)
+- Implemented color picker UI (HTML5 color input)
+- Updated compositeImage() to support custom frame colors
+- Added frame preview with actual frame images
+- Created helper functions: getArtistById, getFramesByArtist, getFrameArtists
+- Updated getFrameImagePath to use new artist-based structure
+
 **v2.2.0** (2026-01-28)
 - Updated to 4:3 landscape photo aspect ratio (1920×1440px)
 - Removed 4x1 and 2x3 layouts (now supports: 2x2, 1x4, 3x3)
@@ -2031,6 +2119,7 @@ VITE_SENTRY_DSN=your-sentry-dsn
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.3.0 | 2026-02-04 | AI Assistant | Added artist-based frame system, customizable solid color frame |
 | 2.2.0 | 2026-01-28 | AI Assistant | Updated for 4:3 landscape photos, removed stickers, updated layouts |
 | 2.1.0 | 2026-01-16 | AI Assistant | Minor updates and clarifications |
 | 2.0.0 | 2026-01-12 | AI Assistant | Complete SDD for refactor project |
