@@ -66,6 +66,7 @@ const getCanvasDimensions = (layout) => {
  * @param {Object} options.layout - Layout configuration
  * @param {string} options.filterId - Filter ID
  * @param {string} options.frameId - Frame ID
+ * @param {string} options.frameColor - Frame color (for solid-color frame)
  * @param {number} options.quality - Output quality (0-1), default 0.95
  * @returns {Promise<string>} Data URL of composed image
  */
@@ -73,7 +74,8 @@ export const compositeImage = async ({
   photos,
   layout,
   filterId = 'none',
-  frameId = 'none',
+  frameId = 'solid-color',
+  frameColor = '#FFFFFF',
   quality = 0.95,
 }) => {
   return new Promise((resolve, reject) => {
@@ -95,8 +97,8 @@ export const compositeImage = async ({
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
 
-      // Fill white background
-      ctx.fillStyle = '#ffffff';
+      // Fill background (use frame color for solid-color frame, white for others)
+      ctx.fillStyle = frameId === 'solid-color' ? frameColor : '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Load and draw all photos (resized to standard dimensions)

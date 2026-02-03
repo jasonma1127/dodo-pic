@@ -17,7 +17,8 @@ export const useEditorStore = create(
        * State
        */
       currentFilter: 'none',   // string - Currently selected filter ID
-      selectedFrame: 'none',   // string - Selected frame ID ('none' for no frame)
+      selectedFrame: 'solid-color',   // string - Selected frame ID
+      frameColor: '#FFFFFF',   // string - Custom frame color (for solid-color frame)
 
       /**
        * Actions
@@ -38,7 +39,7 @@ export const useEditorStore = create(
 
       /**
        * Set the frame overlay
-       * @param {string} frameId - Frame ID to apply ('none' to remove)
+       * @param {string} frameId - Frame ID to apply
        */
       setFrame: (frameId) =>
         set(
@@ -50,13 +51,27 @@ export const useEditorStore = create(
         ),
 
       /**
+       * Set custom frame color
+       * @param {string} color - Hex color code (e.g., '#FFFFFF')
+       */
+      setFrameColor: (color) =>
+        set(
+          {
+            frameColor: color,
+          },
+          false,
+          'editor/setFrameColor'
+        ),
+
+      /**
        * Reset all editor state to defaults
        */
       resetEditor: () =>
         set(
           {
             currentFilter: 'none',
-            selectedFrame: 'none',
+            selectedFrame: 'solid-color',
+            frameColor: '#FFFFFF',
           },
           false,
           'editor/reset'

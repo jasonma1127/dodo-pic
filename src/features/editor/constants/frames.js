@@ -54,10 +54,11 @@ export const ARTISTS = {
 
 export const FRAMES = [
   {
-    id: 'none',
-    name: 'No Frame',
+    id: 'solid-color',
+    name: 'Solid Color',
     artistId: 'builtin',
-    preview: 'Clean, no border',
+    preview: 'Custom color frame',
+    customizable: true, // Indicates this frame has customizable options
   },
   {
     id: 'polaroid',
@@ -87,8 +88,8 @@ export const getFrameImagePath = (frameId, layoutId) => {
   const frame = getFrameById(frameId);
   if (!frame || !frame.artistId) return null;
 
-  // No frame returns null (no image)
-  if (frameId === 'none') return null;
+  // Frames without images return null
+  if (frameId === 'none' || frameId === 'solid-color') return null;
 
   // New structure: /frames/{artistId}/{layoutId}/{frameId}.png
   return `/frames/${frame.artistId}/${layoutId}/${frameId}.png`;

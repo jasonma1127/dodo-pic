@@ -18,7 +18,7 @@ import { getFramesByArtist, getFrameArtists, getArtistById, getFrameImagePath } 
 import { COPY } from '@/shared/copy/en';
 
 const FramePanel = () => {
-  const { selectedFrame, setFrame } = useEditorStore();
+  const { selectedFrame, setFrame, frameColor, setFrameColor } = useEditorStore();
   const { selectedLayout } = useLayoutStore();
 
   const framesByArtist = getFramesByArtist();
@@ -79,6 +79,22 @@ const FramePanel = () => {
         </div>
       )}
 
+      {/* Color Picker for Solid Color Frame */}
+      {selectedFrame === 'solid-color' && (
+        <div className="mb-4 p-4 bg-white rounded-lg ring-1 ring-gray-200">
+          <label className="block text-sm font-medium text-gray-900 mb-3">
+            Frame Color
+          </label>
+          <input
+            type="color"
+            value={frameColor}
+            onChange={(e) => setFrameColor(e.target.value)}
+            className="w-full h-12 rounded-lg cursor-pointer"
+            style={{ padding: 0, border: 'none' }}
+          />
+        </div>
+      )}
+
       {/* Frames Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {currentFrames.map((frame) => (
@@ -87,6 +103,7 @@ const FramePanel = () => {
             frame={frame}
             isSelected={selectedFrame === frame.id}
             layoutId={selectedLayout?.id}
+            frameColor={frame.id === 'solid-color' ? frameColor : null}
             onSelect={() => setFrame(frame.id)}
           />
         ))}
@@ -117,7 +134,13 @@ const FrameItem = ({ frame, isSelected, layoutId, onSelect }) => {
     >
       {/* Frame Preview */}
       <div className="mb-3">
-        <div className="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+        <div className={`aspect-[4/3] rounded-lg overflow-hidden flex items-center justify-center ${
+          frameImagePath
+            ? 'bg-gray-100'
+            : isSelected
+              ? 'bg-white/20'
+              : 'bg-gray-50'
+        }`}>
           {frameImagePath ? (
             <img
               src={frameImagePath}
@@ -125,9 +148,9 @@ const FrameItem = ({ frame, isSelected, layoutId, onSelect }) => {
               className="w-full h-full object-contain"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-              <span className="text-gray-600 text-sm">No Frame</span>
-            </div>
+            <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+              Default
+            </span>
           )}
         </div>
       </div>

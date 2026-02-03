@@ -32,7 +32,7 @@ const ExportPreview = () => {
 
   const { photos } = usePhotoStore();
   const { selectedLayout } = useLayoutStore();
-  const { currentFilter, selectedFrame } = useEditorStore();
+  const { currentFilter, selectedFrame, frameColor } = useEditorStore();
   const { resetWorkflow } = useWorkflowStore();
 
   // Compose image whenever dependencies change
@@ -58,6 +58,7 @@ const ExportPreview = () => {
           layout: selectedLayout,
           filterId: currentFilter,
           frameId: selectedFrame,
+          frameColor: frameColor,
           quality: 0.95,
         });
 
@@ -79,7 +80,7 @@ const ExportPreview = () => {
     return () => {
       isMounted = false;
     };
-  }, [photos, selectedLayout, currentFilter, selectedFrame]);
+  }, [photos, selectedLayout, currentFilter, selectedFrame, frameColor]);
 
   const handleDownload = () => {
     if (composedImage) {

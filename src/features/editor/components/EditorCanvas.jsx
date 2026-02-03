@@ -15,7 +15,7 @@ import { compositeImage } from '@/features/export/utils/imageComposite';
 const EditorCanvas = () => {
   const { photos } = usePhotoStore();
   const { selectedLayout } = useLayoutStore();
-  const { currentFilter, selectedFrame } = useEditorStore();
+  const { currentFilter, selectedFrame, frameColor } = useEditorStore();
   const [previewImage, setPreviewImage] = useState(null);
   const [isComposing, setIsComposing] = useState(false);
 
@@ -36,6 +36,7 @@ const EditorCanvas = () => {
           layout: selectedLayout,
           filterId: currentFilter,
           frameId: selectedFrame,
+          frameColor: frameColor,
           quality: 0.7, // Lower quality for faster preview
         });
 
@@ -56,7 +57,7 @@ const EditorCanvas = () => {
     return () => {
       isMounted = false;
     };
-  }, [photos, selectedLayout, currentFilter, selectedFrame]);
+  }, [photos, selectedLayout, currentFilter, selectedFrame, frameColor]);
 
   if (!selectedLayout || photos.length === 0) {
     return (
